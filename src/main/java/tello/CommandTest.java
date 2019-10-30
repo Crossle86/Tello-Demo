@@ -11,7 +11,7 @@ import tello.control.TelloControlImpl;
 
 public class CommandTest
 {
-	private static final Logger logger = Logger.getGlobal(); //.getAnonymousLogger(); //Main.class.getName());
+	private final Logger logger = Logger.getGlobal(); 
 
 	public void executeCommandTest()
 	{
@@ -32,7 +32,7 @@ public class CommandTest
 		      e.printStackTrace();
 		    }
 		    
-		    telloControl.doFlip(TelloFlip.forward);
+		    telloControl.doFlip(TelloFlip.backward);
 		    
 		    int battery, speed, time, height, temp;
 		    
@@ -40,7 +40,8 @@ public class CommandTest
 		    
 		    String sn, sdk;
 		    
-		    int[] attitude, acceleration;
+		    int[] attitude;
+		    double [] acceleration;
 		    
 			battery = telloControl.getBattery();
 			
@@ -66,7 +67,7 @@ public class CommandTest
 			    
 		    logger.info("battery level=" + battery + ";speed=" + speed + ";time=" + time);
 		    logger.info("baro=" + baro + ";height=" + height + ";tof=" + tof + ";temp=" + temp);
-		    logger.info("sdk=" + sdk + ";sn=" + sn + ";att=" + attitude + ";accel=" + acceleration);
+		    logger.info("sdk=" + sdk + ";sn=" + sn);
 		    
 		    telloControl.forward(100);
 		    
@@ -76,9 +77,9 @@ public class CommandTest
 		    
 		    telloControl.down(100);
 		    
-		    telloControl.left(100);
+		    telloControl.left(50);
 		    
-		    telloControl.right(100);
+		    telloControl.right(50);
 		    
 		    telloControl.rotateLeft(90);
 		    

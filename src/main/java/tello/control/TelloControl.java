@@ -163,7 +163,7 @@ public interface TelloControl {
    * Get IMU acceleration.
    * @return Angular acceleration x, y, z (.001 g).
    */
-  int[] getAcceleration();
+  double[] getAcceleration();
   
   /**
    * Get distance from TOF.

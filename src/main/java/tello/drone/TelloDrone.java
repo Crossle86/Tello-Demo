@@ -48,9 +48,9 @@ public interface TelloDrone
 
   int[] getAttitude();
 
-  void setAcceleration( int[] xyz );
+  void setAcceleration( double[] xyz );
 
-  int[] getAcceleration();
+  double[] getAcceleration();
 
   void setSDK( String trim );
 

@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class TelloCommunicationImpl implements TelloCommunication {
 
-  private static final Logger logger = Logger.getGlobal(); //.getLogger(TelloCommunicationImpl.class.getName());
+  private final Logger logger = Logger.getGlobal();
 
   /**
    * Datagram connection to the Tello drone.
@@ -76,7 +76,7 @@ public class TelloCommunicationImpl implements TelloCommunication {
 
     final String command = telloCommand.composeCommand();
     
-    logger.info("Executing tello command: " + command);
+    logger.fine("Executing tello command: " + command);
 
     try {
       sendData(command);
@@ -85,7 +85,7 @@ public class TelloCommunicationImpl implements TelloCommunication {
       throw new TelloConnectionException(e.getMessage());
     } 
 
-    logger.info("Tello response: " + response);
+    logger.fine("Tello response: " + response);
 
     if (response.startsWith("unknown command")) throw new TelloCommandException("unknown command");
     if (response.startsWith("out of range")) throw new TelloCommandException("invalid parameter");
@@ -116,7 +116,7 @@ public class TelloCommunicationImpl implements TelloCommunication {
 
     final String command = telloCommand.composeCommand();
     
-    logger.info("Executing tello command: " + command);
+    logger.fine("Executing tello command: " + command);
 
     try {
       sendData(command);
@@ -125,7 +125,7 @@ public class TelloCommunicationImpl implements TelloCommunication {
         throw new TelloConnectionException(e.getMessage());
     }
 
-    logger.info("Tello response: " + response);
+    logger.fine("Tello response: " + response);
 
     if (response.startsWith("unknown command")) throw new TelloCommandException("unknown command");
     if (response.startsWith("out of range")) throw new TelloCommandException("invalid parameter");

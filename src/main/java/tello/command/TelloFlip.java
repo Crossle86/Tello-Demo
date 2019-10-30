@@ -1,11 +1,29 @@
 package tello.command;
 
-public enum TelloFlip {
+public enum TelloFlip 
+{
   left,
   right,
   forward,
-  backLeft,
-  backRight,
-  fontLeft,
-  frontRight
+  backward;
+	  
+  public static String toCommand(TelloFlip flip)
+  {
+	  switch (flip)
+	  {
+		  case left:
+			  return "l";
+			  
+		  case right:
+		  	  return "r";
+		  	  
+		  case forward:
+			  return "f";
+			  
+		  case backward:
+			  return "b";
+	  }
+	  
+	  return "";
+  }
 }

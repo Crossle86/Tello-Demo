@@ -14,109 +14,127 @@ import tello.exception.TelloCommandException;
 
 import java.util.logging.Logger;
 
-public class TelloControlImpl implements TelloControl {
+public class TelloControlImpl implements TelloControl 
+{
 
-	private static final Logger logger = Logger.getGlobal(); //.getLogger(TelloControlImpl.class.getName());
+	private final Logger logger = Logger.getGlobal();
 	
 	private TelloDrone drone;
 	
 	private TelloCommunication telloCommunication;
 	
-	public TelloControlImpl() {
+	public TelloControlImpl() 
+	{
 	  drone = new TelloDroneImpl();
 	  telloCommunication = new TelloCommunicationImpl();
 	}
 	
 	@Override
-	public void connect() {
+	public void connect() 
+	{
 	  telloCommunication.connect();
 	  drone.setConnection(TelloConnection.CONNECTED);
 	}
 	
 	@Override
-	public void disconnect() {
+	public void disconnect() 
+	{
 	  telloCommunication.disconnect();
 	  drone.setConnection(TelloConnection.DISCONNECTED);
 	}
 	  
-	public TelloConnection getConnection() {
+	public TelloConnection getConnection() 
+	{
 	 return drone.getConnection();
 	}
 	
 	@Override
-	public void enterCommandMode() {
+	public void enterCommandMode() 
+	{
 	  TelloCommand command = new BasicTelloCommand(TelloCommandValues.COMMAND_MODE);
 	  telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void takeOff() {
+	public void takeOff() 
+	{
 	  TelloCommand command = new BasicTelloCommand(TelloCommandValues.TAKE_OFF);
 	  telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void land() {
+	public void land() 
+	{
 	  TelloCommand command = new BasicTelloCommand(TelloCommandValues.LAND);
 	  telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void doFlip(TelloFlip telloFlip) {
-	  TelloCommand command = new ComplexTelloCommand(TelloCommandValues.FLIP, "f");
-	  if (!telloCommunication.executeCommand(command)) logger.info("Flip failed, check battery");
+	public void doFlip(TelloFlip telloFlip) 
+	{
+	  TelloCommand command = new ComplexTelloCommand(TelloCommandValues.FLIP, TelloFlip.toCommand(telloFlip));
+	  if (!telloCommunication.executeCommand(command)) logger.warning("Flip failed, check battery");
 	}
 	
 	@Override
-	public void setSpeed(Integer speed) {
+	public void setSpeed(Integer speed) 
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.SPEED, speed.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void forward(Integer distance) {
+	public void forward(Integer distance) 
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.FORWARD, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void backward(Integer distance) {
+	public void backward(Integer distance)
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.BACK, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void right(Integer distance) {
+	public void right(Integer distance) 
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.RIGHT, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void left(Integer distance) {
+	public void left(Integer distance) 
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.LEFT, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void rotateRight(Integer angle) {
+	public void rotateRight(Integer angle) 
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.CW, angle.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
-	public void rotateLeft(Integer angle) {
+	public void rotateLeft(Integer angle)
+	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.CCW, angle.toString());
 		telloCommunication.executeCommand(command);
 	}
 	  
-	public int getBattery() {
+	public int getBattery() 
+	{
 		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_BATTERY);
 		String battery = telloCommunication.executeReadCommand(command);
 		drone.setBattery(Integer.parseInt(battery.trim()));
 		return drone.getBattery();
 	}
 	  
-	public int getSpeed() {
+	public int getSpeed() 
+	{
 		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_SPEED);
 		String speed = telloCommunication.executeReadCommand(command);
 		drone.setSpeed((int) Double.parseDouble(speed.trim()));
@@ -178,17 +196,38 @@ public class TelloControlImpl implements TelloControl {
 	{
 		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_ATTITUDE);
 		String attitude = telloCommunication.executeReadCommand(command);
-		int[] pry = null;
+		
+		String spry[] = attitude.split(";");
+		int pry[] = new int[3];
+
+		for (int i = 0; i < 3; i++)
+		{
+			String axis[] = spry[i].split(":");
+			pry[i] = Integer.parseInt(axis[1]);
+			//logger.info(Integer.toString(pry[i]));
+ 		}
+
 		drone.setAttitude(pry);
+		
 		return drone.getAttitude();
 	}
 	
 	@Override
-	public int[] getAcceleration()
+	public double[] getAcceleration()
 	{
 		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_ACCELERATION);
 		String acceleration = telloCommunication.executeReadCommand(command);
-		int[] xyz = null;
+		
+		String sxyz[] = acceleration.split(";");
+		double xyz[] = new double[3];
+
+		for (int i = 0; i < 3; i++)
+		{
+			String axis[] = sxyz[i].split(":");
+			xyz[i] = Double.parseDouble(axis[1]);
+			//logger.info(Double.toString(xyz[i]));
+ 		}
+
 		drone.setAcceleration(xyz);
 		return drone.getAcceleration();
 	}

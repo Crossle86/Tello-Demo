@@ -17,9 +17,8 @@ public class TelloDroneImpl implements TelloDrone {
    */
   public static final Integer UDP_PORT = 8889;
   
-  private Integer 			battery, height, speed, time, temp;
-  private Double			barometer, tof;
-  private int[] 			attitude, acceleration;
+  private int				battery, height, speed, time, temp, attitude[];
+  private double			barometer, tof, acceleration[];
   private String			sn, sdk;
   private TelloConnection 	telloConnection;
   private TelloMode 		telloMode;
@@ -163,13 +162,13 @@ public class TelloDroneImpl implements TelloDrone {
   }
 
   @Override
-  public void setAcceleration( int[] xyz )
+  public void setAcceleration( double[] xyz )
   {
 	acceleration = xyz;
   }
 
   @Override
-  public int[] getAcceleration()
+  public double[] getAcceleration()
   {
 	return acceleration;
   }

@@ -172,7 +172,7 @@ public interface TelloControl {
   double getTof();
   
   /**
-   * Get drone serial number.
+   * Get drone serial number. Requires EDU with SDK 1.3 or later.
    * @return Serial Number.
    */
   String getSN();
@@ -184,7 +184,7 @@ public interface TelloControl {
   TelloConnection getConnection();
   
   /**
-   * Get drone sdk version.
+   * Get drone sdk version. Requires EDU with SDK 1.3 or later.
    * @return Version.
    */
   String getSDK();
@@ -193,4 +193,31 @@ public interface TelloControl {
    * Stop drone motion, goes into hover.
    */
   void stop();
+  
+  /**
+   * Stop all motors.
+   */
+  void emergency();
+  
+  /**
+   * Turn on video stream.
+   */
+  void streamOn();
+  
+  /**
+   * Turn off video stream.
+   */
+  void streamOff();
+  
+  /**
+   * Start monitoring the status updates sent by the Tello.
+   * Requires SDK 1.3 or later.
+   */
+  void startStatusMonitor();
+  
+  /**
+   * Stop monitoring the status updates sent by the  Tello.
+   * Requires SDK 1.3 or later.
+   */
+  void stopStatusMonitor();
 }

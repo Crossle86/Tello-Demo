@@ -2,6 +2,7 @@ package tello;
 
 import static java.lang.Thread.sleep;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tello.command.TelloFlip;
@@ -17,7 +18,7 @@ public class CommandTest
 	{
 		logger.info("start");
 		
-	    TelloControl telloControl = new TelloControlImpl();
+	    TelloControl telloControl = new TelloControlImpl(Level.FINE);
 
 	    try 
 	    {
@@ -32,13 +33,13 @@ public class CommandTest
 		      e.printStackTrace();
 		    }
 		    
-		    telloControl.doFlip(TelloFlip.backward);
+		    //telloControl.doFlip(TelloFlip.backward);
 		    
-		    int battery, speed, time, height, temp;
+		    int battery = 0, speed = 0, time = 0, height = 0, temp = 0;
 		    
-		    double baro, tof;
+		    double baro = 0, tof = 0;
 		    
-		    String sn, sdk;
+		    String sn = "", sdk = "";
 		    
 		    int[] attitude;
 		    double [] acceleration;
@@ -57,9 +58,9 @@ public class CommandTest
 			
 			temp = telloControl.getTemp();
 			
-			sn = telloControl.getSN();
+			//sn = telloControl.getSN();
 			
-			sdk = telloControl.getSDK();
+			//sdk = telloControl.getSDK();
 			
 			attitude = telloControl.getAttitude();
 			
@@ -69,23 +70,29 @@ public class CommandTest
 		    logger.info("baro=" + baro + ";height=" + height + ";tof=" + tof + ";temp=" + temp);
 		    logger.info("sdk=" + sdk + ";sn=" + sn);
 		    
-		    telloControl.forward(100);
+		    //telloControl.streamOn();
 		    
-		    telloControl.backward(100);
+		    //telloControl.streamOff();
 		    
-		    telloControl.up(100);
+		    //telloControl.emergency();
 		    
-		    telloControl.down(100);
+	    	//telloControl.forward(100);
 		    
-		    telloControl.left(50);
-		    
-		    telloControl.right(50);
-		    
-		    telloControl.rotateLeft(90);
-		    
-		    telloControl.rotateRight(90);
-		    
-		    telloControl.goTo(20, 20, 20, 50);
+//		    telloControl.backward(100);
+//		    
+//		    telloControl.up(100);
+//		    
+//		    telloControl.down(100);
+//		    
+//		    telloControl.left(50);
+//		    
+//		    telloControl.right(50);
+//		    
+//		    telloControl.rotateLeft(90);
+//		    
+//		    telloControl.rotateRight(90);
+//		    
+//		    telloControl.goTo(20, 20, 20, 50);
 	    }	
 	    catch (Exception e) {
 	    	e.printStackTrace();

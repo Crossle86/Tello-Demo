@@ -12,12 +12,14 @@ import tello.drone.TelloDrone;
 import tello.drone.TelloDroneImpl;
 import tello.exception.TelloCommandException;
 
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TelloControlImpl implements TelloControl 
 {
-
-	private final Logger logger = Logger.getGlobal();
+	private final Logger logger = Logger.getLogger("Tello");
+	private final ConsoleHandler handler = new ConsoleHandler();
 	
 	private TelloDrone drone;
 	
@@ -25,6 +27,16 @@ public class TelloControlImpl implements TelloControl
 	
 	public TelloControlImpl() 
 	{
+	  this(Level.OFF);
+	}
+	
+	public TelloControlImpl(Level logLevel) 
+	{
+	  logger.setLevel(logLevel);
+	  handler.setLevel(logLevel);
+	  logger.addHandler(handler);
+	  logger.setUseParentHandlers(false);
+	  
 	  drone = new TelloDroneImpl();
 	  telloCommunication = new TelloCommunicationImpl();
 	}
@@ -39,6 +51,7 @@ public class TelloControlImpl implements TelloControl
 	@Override
 	public void disconnect() 
 	{
+	  stopStatusMonitor();
 	  telloCommunication.disconnect();
 	  drone.setConnection(TelloConnection.DISCONNECTED);
 	}
@@ -73,7 +86,7 @@ public class TelloControlImpl implements TelloControl
 	public void doFlip(TelloFlip telloFlip) 
 	{
 	  TelloCommand command = new ComplexTelloCommand(TelloCommandValues.FLIP, TelloFlip.toCommand(telloFlip));
-	  if (!telloCommunication.executeCommand(command)) logger.warning("Flip failed, check battery");
+	  telloCommunication.executeCommand(command);
 	}
 	
 	@Override
@@ -280,5 +293,38 @@ public class TelloControlImpl implements TelloControl
 	{
 		TelloCommand command = new BasicTelloCommand(TelloCommandValues.STOP);
 		telloCommunication.executeCommand(command);
+	}
+
+	@Override
+	public void emergency()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.EMERGENCY);
+		telloCommunication.executeCommand(command);
+	}
+
+	@Override
+	public void streamOn()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.ENABLE_VIDEO_STREAM);
+		telloCommunication.executeCommand(command);
+	}
+
+	@Override
+	public void streamOff()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.DISABLE_VIDEO_STREAM);
+		telloCommunication.executeCommand(command);
+	}
+
+	@Override
+	public void startStatusMonitor()
+	{
+		logger.fine("starting status monitor thread");
+	}
+
+	@Override
+	public void stopStatusMonitor()
+	{
+		logger.fine("stopping status monitor thread");
 	}
 }

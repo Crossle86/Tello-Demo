@@ -1,5 +1,6 @@
 package tello.communication;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,23 +17,22 @@ public interface TelloCommunication {
   /**
    * Executes commands on Tello drone.
    * @param telloCommand The command to be executed.
-   * @return True if the execution was successful, false if not.
-   * @throws Exception for serious errors.
+   * @throws TelloCommandException for errors.
    */
-  boolean executeCommand(final TelloCommand telloCommand);  
+  void executeCommand(final TelloCommand telloCommand);  
 
   /**
    * Executes commands on Tello drone that return data.
    * @param telloCommand The command to be executed.
    * @return Data returned from Tello or empty string.
-   * @throws Exception for serious errors.
+   * @throws TelloCommandException for errors.
    */
   String executeReadCommand(final TelloCommand tellocommand);
 
   /**
    * Executes a list of commands on Tello drone.
    * @param telloCommandList The list of commands to be executed.
-   * @throws Exception for any errors.
+   * @throws TelloCommandException for errors.
    */
   void executeCommands(final List<TelloCommand> telloCommandList);
 
@@ -46,8 +46,9 @@ public interface TelloCommunication {
    *
    * @param valuesToBeObtained Values (names) to be obtained from the drone.
    * @return Map of the data.
-   * @throws Exception for serious errors.
+   * @throws TelloCommandException for errors.
    */
   Map<String, String> getTelloOnBoardData(List<String> valuesToBeObtained);
-
+  
+  public String receiveStatusData() throws IOException; 
 }

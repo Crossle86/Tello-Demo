@@ -15,7 +15,7 @@ public class TelloDroneImpl implements TelloDrone {
   /*
    * Connection UDP Port.
    */
-  public static final Integer UDP_PORT = 8889;
+  public static final Integer UDP_PORT = 8889, UDP_STATUS_PORT = 8890;
   
   private int				battery, height, speed, time, temp, attitude[];
   private double			barometer, tof, acceleration[];

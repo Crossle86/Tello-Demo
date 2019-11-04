@@ -52,6 +52,10 @@ public interface TelloDrone
 
   double[] getAcceleration();
 
+  void setVelocity( double[] xyz );
+
+  double[] getVelocity();
+
   void setSDK( String trim );
 
   String getSDK();

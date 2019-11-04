@@ -63,12 +63,13 @@ public class TelloCommunicationImpl implements TelloCommunication
       
       if (!ipAddress.isReachable(100)) throw new IOException("Tello not responding");
       
-      dsStatus = new DatagramSocket();
-      dsStatus.connect(ipAddress, udpStatusPort);
+      dsStatus = new DatagramSocket(udpStatusPort);
       
       logger.info("Connected!");
     } catch (Exception e) {
-      ds.close();
+      if (dsStatus != null) dsStatus.close();
+      if (ds != null) ds.close();
+      e.printStackTrace();
       throw new TelloConnectionException("Connect failed: " + e.getMessage());
     }
   }
@@ -78,7 +79,7 @@ public class TelloCommunicationImpl implements TelloCommunication
   {
 	String response;
 
-	if (telloCommand == null) throw new TelloCommandException("Command was empty");
+	if (telloCommand == null) throw new TelloCommandException("Command was null");
      
     if (!ds.isConnected()) throw new TelloConnectionException("No connection");
 
@@ -109,11 +110,11 @@ public class TelloCommunicationImpl implements TelloCommunication
     return dataMap;
   }
 
-  public String executeReadCommand(TelloCommand telloCommand) 
+  public synchronized String executeReadCommand(TelloCommand telloCommand) 
   {
 	String response;
 	  
-	if (telloCommand == null) throw new TelloCommandException("Command was empty");
+	if (telloCommand == null) throw new TelloCommandException("Command was null");
     
     if (!ds.isConnected()) throw new TelloConnectionException("No connection");
 
@@ -149,9 +150,9 @@ public class TelloCommunicationImpl implements TelloCommunication
   @Override
   public void disconnect() 
   {
-	dsStatus.close();
+	if (dsStatus != null) dsStatus.close();
 	
-	ds.close();
+	if (ds != null) ds.close();
 	
 	logger.info("Disconnected!");
   }

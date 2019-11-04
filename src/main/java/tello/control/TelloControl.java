@@ -2,6 +2,7 @@ package tello.control;
 
 import tello.command.TelloFlip;
 import tello.communication.TelloConnection;
+import tello.drone.TelloDrone;
 import tello.exception.TelloCommandException;
 
 public interface TelloControl {
@@ -216,8 +217,28 @@ public interface TelloControl {
   void startStatusMonitor();
   
   /**
-   * Stop monitoring the status updates sent by the  Tello.
-   * Requires SDK 1.3 or later.
+   * Stop monitoring the status updates sent by the Tello.
+   * Requires SDK 1.3 or later. Monitor will be stopped when
+   * disconnect() is called.
    */
   void stopStatusMonitor();
+  
+  /**
+   * Start keep alive thread that pings the Tello every 10 seconds
+   * with a get battery level command to keep the Tello from shutting
+   * down automatically if it receives no commands for 15 seconds.
+   */
+  void startKeepAlive();
+  
+  /**
+   * Stops the keep alive thread. Thread will be stopped when disconnect()
+   * is called.
+   */
+  void stopKeepAlive();
+  
+  /**
+   * Return the TelloDrone instance maintained by TelloControl.
+   * @return The drone instance.
+   */
+  TelloDrone getDrone();
 }

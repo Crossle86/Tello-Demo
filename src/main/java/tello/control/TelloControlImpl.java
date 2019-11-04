@@ -18,12 +18,14 @@ import java.util.logging.Logger;
 
 public class TelloControlImpl implements TelloControl 
 {
-	private final Logger logger = Logger.getLogger("Tello");
-	private final ConsoleHandler handler = new ConsoleHandler();
+	private final 	Logger logger = Logger.getLogger("Tello");
+	private final 	ConsoleHandler handler = new ConsoleHandler();
 	
 	private TelloDrone drone;
 	
 	private TelloCommunication telloCommunication;
+	
+	private Thread	statusMonitorThread, keepAliveThread;
 	
 	public TelloControlImpl() 
 	{
@@ -52,6 +54,13 @@ public class TelloControlImpl implements TelloControl
 	public void disconnect() 
 	{
 	  stopStatusMonitor();
+	  stopKeepAlive();
+	  
+	  // This will land if we are still flying and throw away the error
+	  // returned  by land if we have already landed or never took off.
+	  
+	  try { land(); } catch (Exception e) {}
+	  
 	  telloCommunication.disconnect();
 	  drone.setConnection(TelloConnection.DISCONNECTED);
 	}
@@ -320,11 +329,140 @@ public class TelloControlImpl implements TelloControl
 	public void startStatusMonitor()
 	{
 		logger.fine("starting status monitor thread");
+		
+		if (statusMonitorThread != null) return;
+
+		statusMonitorThread = new StatusMonitor();
+		statusMonitorThread.start();
 	}
 
 	@Override
 	public void stopStatusMonitor()
 	{
+		if (statusMonitorThread != null) statusMonitorThread.interrupt();
+
 		logger.fine("stopping status monitor thread");
+		
+		statusMonitorThread = null;
+	}
+	
+	private class StatusMonitor extends Thread
+	{
+		StatusMonitor()
+		{
+			logger.fine("monitor thread constructor");
+			
+			this.setName("StatusMonitor");
+	    }
+		
+	    public void run()
+	    {
+			logger.fine("monitor thread start");
+			
+	    	try
+	    	{
+	    		while (!isInterrupted())
+	    		{
+	    			String logData = telloCommunication.receiveStatusData();
+	    			
+	    			logger.finer(logData);
+	    			
+	    			String[] keyValuePairs = logData.split(";"); 
+	    			
+	    			for(String pair : keyValuePairs)                        // iterate over the pairs.
+	    			{
+	    				int[] attpry = new int[3];
+	    				double[] accelxyz = new double[3], veloxyz = new double[3];
+	    				
+	    			    String[] entry = pair.split(":");                   // split the pairs to get key and value. 
+	    			    
+	    			    switch (entry[0])
+	    			    {
+	    			    	case "bat": drone.setBattery(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "time": drone.setTime(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "temph": drone.setTemp(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "tof": drone.setTof(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "h": drone.setHeight(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "baro": drone.setBarometer(Double.parseDouble(entry[1].trim())); break;
+	    			    	case "pitch": attpry[0] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "roll": attpry[1] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "yaw": attpry[2] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "agx": accelxyz[0] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "agy": accelxyz[1] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "agz": accelxyz[2] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "vgx": veloxyz[0] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "vgy": veloxyz[1] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "vgz": veloxyz[2] = Double.parseDouble(entry[1].trim()); break;
+	    			    }
+	    			    
+	    			    drone.setAttitude(attpry);
+	    			    
+	    			    drone.setAcceleration(accelxyz);
+	    			    
+	    			    drone.setVelocity(veloxyz);
+	    			}
+	    		}
+	    	}
+	    	catch (Exception e) { logger.warning("status monitor failed: " + e.getMessage()); }
+	    	finally {}
+	    	
+	    	statusMonitorThread =  null;
+	    }
+	}
+
+	@Override
+	public void startKeepAlive()
+	{
+		logger.fine("starting keepalive thread");
+		
+		if (keepAliveThread != null) return;
+
+		keepAliveThread = new KeepAlive();
+		keepAliveThread.start();
+	}
+
+	@Override
+	public void stopKeepAlive()
+	{
+		if (keepAliveThread != null) keepAliveThread.interrupt();
+
+		logger.fine("stopping keepalive thread");
+		
+		keepAliveThread = null;
+	}
+	
+	private class KeepAlive extends Thread
+	{
+		KeepAlive()
+		{
+			logger.fine("KeepAlive thread constructor");
+			
+			this.setName("KeepAlive");
+	    }
+		
+	    public void run()
+	    {
+			logger.fine("keepalive thread start");
+			
+	    	try
+	    	{
+	    		while (!isInterrupted())
+	    		{
+	    			sleep(10000);	// 10 seconds.
+	    			
+	    			getBattery();
+	    		}
+	    	}
+	    	catch (InterruptedException e) {}
+	    	catch (Exception e) { logger.warning("keepalive failed: " + e.getMessage()); }
+	    	
+	    	keepAliveThread =  null;
+	    }
+	}
+
+	@Override
+	public TelloDrone getDrone()
+	{
+		return drone;
 	}
 }

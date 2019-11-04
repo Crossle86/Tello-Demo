@@ -18,20 +18,28 @@ public class CommandTest
 	{
 		logger.info("start");
 		
-	    TelloControl telloControl = new TelloControlImpl(Level.FINE);
+	    TelloControl telloControl = new TelloControlImpl(Level.FINER);
 
 	    try 
 	    {
 		    telloControl.connect();
 		    telloControl.enterCommandMode();
 		    telloControl.takeOff();
+		    
+		    telloControl.startStatusMonitor();
+		    
+		    telloControl.startKeepAlive();
 		
+		    logger.info("waiting...");
+		    
 		    try 
 		    {
-		      sleep(3000);
+		      sleep(2000);
 		    } catch (InterruptedException e) {
 		      e.printStackTrace();
 		    }
+		    
+		    logger.info("done waiting...");
 		    
 		    //telloControl.doFlip(TelloFlip.backward);
 		    
@@ -42,33 +50,38 @@ public class CommandTest
 		    String sn = "", sdk = "";
 		    
 		    int[] attitude;
-		    double [] acceleration;
+		    double [] acceleration, velocity;
 		    
-			battery = telloControl.getBattery();
+			battery = telloControl.getDrone().getBattery();
 			
 			speed = telloControl.getSpeed();
 			
-			time = telloControl.getTime();
+			time = telloControl.getDrone().getTime();
 			
-			baro = telloControl.getBarometer();
+			baro = telloControl.getDrone().getBarometer();
 			
-			height = telloControl.getHeight();
+			height = telloControl.getDrone().getHeight();
 			
-			tof = telloControl.getTof();
+			tof = telloControl.getDrone().getTof();
 			
-			temp = telloControl.getTemp();
+			temp = telloControl.getDrone().getTemp();
 			
-			//sn = telloControl.getSN();
+			sn = telloControl.getSN();
 			
-			//sdk = telloControl.getSDK();
+			sdk = telloControl.getSDK();
 			
-			attitude = telloControl.getAttitude();
+			attitude = telloControl.getDrone().getAttitude();
 			
-			acceleration = telloControl.getAcceleration();
+			acceleration = telloControl.getDrone().getAcceleration();
+			
+			velocity = telloControl.getDrone().getVelocity();
 			    
 		    logger.info("battery level=" + battery + ";speed=" + speed + ";time=" + time);
 		    logger.info("baro=" + baro + ";height=" + height + ";tof=" + tof + ";temp=" + temp);
 		    logger.info("sdk=" + sdk + ";sn=" + sn);
+		    logger.info("pitch=" + attitude[0] + ";roll=" + attitude[1] + ";yaw=" + attitude[2]);
+		    logger.info("accel x=" + acceleration[0] + ";y=" + acceleration[1] + ";z=" + acceleration[2]);
+		    logger.info("veloc x=" + velocity[0] + ";y=" + velocity[1] + ";z=" + velocity[2]);
 		    
 		    //telloControl.streamOn();
 		    
@@ -96,11 +109,17 @@ public class CommandTest
 	    }	
 	    catch (Exception e) {
 	    	e.printStackTrace();
-	    } finally {
-	    	if (telloControl.getConnection() == TelloConnection.CONNECTED) telloControl.land();
-	    
-	    	telloControl.disconnect();
+	    } finally 
+	    {
+	    	if (telloControl.getConnection() == TelloConnection.CONNECTED)
+	    	{
+	    		try
+	    		{telloControl.land();}
+	    		catch(Exception e) { e.printStackTrace();}
+	    	}
 	    }
+	    
+    	telloControl.disconnect();
 	    
 	    logger.info("end");
 	}

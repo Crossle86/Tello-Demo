@@ -10,7 +10,6 @@ import tello.communication.TelloCommunicationImpl;
 import tello.communication.TelloConnection;
 import tello.drone.TelloDrone;
 import tello.drone.TelloDroneImpl;
-import tello.exception.TelloCommandException;
 
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;

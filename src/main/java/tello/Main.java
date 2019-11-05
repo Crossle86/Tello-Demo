@@ -12,9 +12,13 @@ public class Main {
 	  	
 	    logger.info("start");
 	    
-	    CommandTest commandTest = new CommandTest();
+	    //CommandTest commandTest = new CommandTest();
 	    
-	    commandTest.executeCommandTest();
+	    //commandTest.executeCommandTest();
+	    
+	    ControllerTest controllerTest = new ControllerTest();
+	    
+	    controllerTest.executeControllerTest();
 	    
 	    logger.info("end");
   }

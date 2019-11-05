@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
+import tello.command.TelloFlip;
 import tello.communication.TelloConnection;
 import tello.control.TelloControl;
 import tello.control.TelloControlImpl;
@@ -28,17 +29,16 @@ public class ControllerTest
 		
 		logger.info("start");
 		
-	    TelloControl telloControl = new TelloControlImpl(Level.FINER);
+	    TelloControl telloControl = new TelloControlImpl(Level.FINE);
 
 	    try 
 	    {
-		    //telloControl.connect();
-		    //telloControl.enterCommandMode();
-		    //telloControl.takeOff();
+		    telloControl.connect();
+		    telloControl.enterCommandMode();
 		    
-		    //telloControl.startStatusMonitor();
+		    telloControl.startStatusMonitor();
 		    
-		    //telloControl.startKeepAlive();
+		    telloControl.startKeepAlive();
 		    
 		    while(true) 
 		    {
@@ -67,12 +67,23 @@ public class ControllerTest
 		    	
 		    	if (flying)
 		    	{
-		    		leftX = (int) currState.leftStickX * 100;
-		    		leftY = (int) currState.leftStickY * 100;
-		    		rightX = (int) currState.rightStickX * 100;
-		    		rightY = (int) currState.rightStickY * 100;
+		    		// scale controller stick range -1.0 to + 1.0 to -100 to + 100
+		    		// used by the drone flyRC command.
+		    		leftX = deadZone((int) (currState.leftStickX * 100.0), 3);
+		    		leftY = deadZone((int) (currState.leftStickY * 100.0), 3);
+		    		rightX = deadZone((int) (currState.rightStickX * 100), 3);
+		    		rightY = deadZone((int) (currState.rightStickY * 100), 3);
 		    		
-		    		telloControl.flyRC(rightX, rightY, leftY, leftX);
+		    		logger.info(rightX + " " + rightY + " " + leftY + " " + leftX);
+		    		
+	    			telloControl.flyRC(rightX, rightY, leftY, leftX);
+		    		
+		    		if (currState.dpadUpJustPressed) telloControl.doFlip(TelloFlip.forward);
+		    		if (currState.dpadDownJustPressed) telloControl.doFlip(TelloFlip.backward);
+		    		if (currState.dpadLeftJustPressed) telloControl.doFlip(TelloFlip.left);
+		    		if (currState.dpadRightJustPressed) telloControl.doFlip(TelloFlip.right);
+		    		
+		    		if (currState.yJustPressed) telloControl.stop();
 		    	}
 		    	
 		    	Thread.sleep(100);
@@ -85,7 +96,9 @@ public class ControllerTest
 	    	if (telloControl.getConnection() == TelloConnection.CONNECTED)
 	    	{
 	    		try
-	    		{telloControl.land();}
+	    		{ 
+	    			if (flying) telloControl.land(); 
+	    		}
 	    		catch(Exception e) { e.printStackTrace();}
 	    	}
 	    }
@@ -94,5 +107,12 @@ public class ControllerTest
 	    
 	    logger.info("end");
 
+	}
+	
+	private int deadZone(int value, int minValue)
+	{
+		if (Math.abs(value) < minValue) value = 0;
+		
+		return value;
 	}
 }

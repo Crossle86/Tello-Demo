@@ -75,7 +75,7 @@ public class TelloCommunicationImpl implements TelloCommunication
   }
 
   @Override
-  public void executeCommand(final TelloCommand telloCommand)  
+  public synchronized void executeCommand(final TelloCommand telloCommand)  
   {
 	String response;
 
@@ -97,9 +97,29 @@ public class TelloCommunicationImpl implements TelloCommunication
 
     logger.fine("response: " + response);
 
+    if (response.toLowerCase().startsWith("forced stop")) return;
     if (response.toLowerCase().startsWith("unknown command")) throw new TelloCommandException("unknown command");
     if (response.toLowerCase().startsWith("out of range")) throw new TelloCommandException("invalid parameter");
     if (!response.toLowerCase().startsWith("ok")) throw new TelloCommandException("command failed");
+  }
+
+  @Override
+  public synchronized void executeCommandNoWait(final TelloCommand telloCommand)  
+  {
+	if (telloCommand == null) throw new TelloCommandException("Command was null");
+     
+    if (!ds.isConnected()) throw new TelloConnectionException("No connection");
+
+    final String command = telloCommand.composeCommand();
+    
+    logger.finer("executing command: " + command);
+
+    try 
+    {
+      sendData(command);
+    } catch (Exception e) {
+      throw new TelloConnectionException(e.getMessage());
+    } 
   }
 
   @Override

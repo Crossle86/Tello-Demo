@@ -284,7 +284,7 @@ public class TelloControlImpl implements TelloControl
 	{
 		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.RC, 
 				lr.toString() + " " + fb.toString() + " " + ud.toString() + " " + yaw.toString());
-		telloCommunication.executeCommand(command);
+		telloCommunication.executeCommandNoWait(command);
 	}
 
 	@Override

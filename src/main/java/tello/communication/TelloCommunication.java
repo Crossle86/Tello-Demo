@@ -50,5 +50,7 @@ public interface TelloCommunication {
    */
   Map<String, String> getTelloOnBoardData(List<String> valuesToBeObtained);
   
-  public String receiveStatusData() throws IOException; 
+  public String receiveStatusData() throws IOException;
+
+  void executeCommandNoWait( TelloCommand telloCommand ); 
 }

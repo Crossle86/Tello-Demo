@@ -1,16 +1,21 @@
 package tello.exception;
 
-public class TelloCommandException extends RuntimeException {
+public class TelloCommandException extends RuntimeException 
+{
+	private static final long serialVersionUID = 1L;
 
-  public TelloCommandException(String message) {
-    super(message);
-  }
+	public TelloCommandException(String message) 
+	{
+		super(message);
+	}
   
-  public TelloCommandException(String message, Throwable cause) {
+	public TelloCommandException(String message, Throwable cause) 
+	{
 	  super(message, cause);
-  }
+	}
 
-  public TelloCommandException(Throwable cause) {
-	  super(cause.getMessage(), cause);
-  }
+	public TelloCommandException(Throwable cause) 
+	{
+		super(cause.getMessage(), cause);
+	}
 }

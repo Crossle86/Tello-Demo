@@ -1,244 +1,469 @@
 package tello.control;
 
+import tello.command.BasicTelloCommand;
+import tello.command.ComplexTelloCommand;
+import tello.command.TelloCommand;
+import tello.command.TelloCommandValues;
 import tello.command.TelloFlip;
+import tello.communication.TelloCommunication;
 import tello.communication.TelloConnection;
+import tello.drone.TelloDroneInterface;
 import tello.drone.TelloDrone;
-import tello.exception.TelloCommandException;
 
-public interface TelloControl {
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-  /**
-   * Establishing connection to the Tello Drone.
-   */
-  void connect();
+/**
+ * Implements TelloControl interface.
+ */
+public class TelloControl implements TelloControlInterface 
+{
+	private final 	Logger logger = Logger.getLogger("Tello");
+	private final 	ConsoleHandler handler = new ConsoleHandler();
+	
+	private TelloDroneInterface drone;
+	
+	private TelloCommunication telloCommunication;
+	
+	private Thread	statusMonitorThread, keepAliveThread;
+	
+	public TelloControl() 
+	{
+	  this(Level.OFF);
+	}
+	
+	public TelloControl(Level logLevel) 
+	{
+	  logger.setLevel(logLevel);
+	  handler.setLevel(logLevel);
+	  logger.addHandler(handler);
+	  logger.setUseParentHandlers(false);
+	  
+	  drone = new TelloDrone();
+	  telloCommunication = new TelloCommunication();
+	}
+	
+	@Override
+	public void connect() 
+	{
+	  telloCommunication.connect();
+	  drone.setConnection(TelloConnection.CONNECTED);
+	}
+	
+	@Override
+	public void disconnect() 
+	{
+	  stopStatusMonitor();
+	  stopKeepAlive();
+	  
+	  // This will land if we are still flying and throw away the error
+	  // returned  by land if we have already landed or never took off.
+	  
+	  try { land(); } catch (Exception e) {}
+	  
+	  telloCommunication.disconnect();
+	  drone.setConnection(TelloConnection.DISCONNECTED);
+	}
+	  
+	public TelloConnection getConnection() 
+	{
+	 return drone.getConnection();
+	}
+	
+	@Override
+	public void enterCommandMode() 
+	{
+	  TelloCommand command = new BasicTelloCommand(TelloCommandValues.COMMAND_MODE);
+	  telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void takeOff() 
+	{
+	  TelloCommand command = new BasicTelloCommand(TelloCommandValues.TAKE_OFF);
+	  telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void land() 
+	{
+	  TelloCommand command = new BasicTelloCommand(TelloCommandValues.LAND);
+	  telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void doFlip(TelloFlip telloFlip) 
+	{
+	  TelloCommand command = new ComplexTelloCommand(TelloCommandValues.FLIP, TelloFlip.toCommand(telloFlip));
+	  telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void setSpeed(Integer speed) 
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.SPEED, speed.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void forward(Integer distance) 
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.FORWARD, distance.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void backward(Integer distance)
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.BACK, distance.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void right(Integer distance) 
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.RIGHT, distance.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void left(Integer distance) 
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.LEFT, distance.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void rotateRight(Integer angle) 
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.CW, angle.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void rotateLeft(Integer angle)
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.CCW, angle.toString());
+		telloCommunication.executeCommand(command);
+	}
+	  
+	public int getBattery() 
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_BATTERY);
+		String battery = telloCommunication.executeReadCommand(command);
+		drone.setBattery(Integer.parseInt(battery.trim()));
+		return drone.getBattery();
+	}
+	  
+	public int getSpeed() 
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_SPEED);
+		String speed = telloCommunication.executeReadCommand(command);
+		drone.setSpeed((int) Double.parseDouble(speed.trim()));
+		return drone.getSpeed();
+	}
 
-  /**
-   * Disconnecting from the drone. If the drone is not landed yet, it will start an automatic
-   * landing.
-   */
-  void disconnect();
+	@Override
+	public void up( Integer distance )
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.UP, distance.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public void down( Integer distance )
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.DOWN, distance.toString());
+		telloCommunication.executeCommand(command);
+	}
+	
+	@Override
+	public int getTime()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_FLY_TIME);
+		String time = telloCommunication.executeReadCommand(command);
+		drone.setTime(Integer.parseInt(time.trim().replaceAll("[^\\d.-]", "")));
+		return drone.getTime();
+	}
+	
+	@Override
+	public int getHeight()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_HEIGHT);
+		String height = telloCommunication.executeReadCommand(command);
+		drone.setHeight(Integer.parseInt(height.trim().replaceAll("[^\\d.-]", "")) * 10);
+		return drone.getHeight();
+	}
+	
+	@Override
+	public int getTemp()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_TEMPERATURE);
+		String temp = telloCommunication.executeReadCommand(command);
+		drone.setTemp(Integer.parseInt(temp.trim().split("~")[0].replaceAll("[^\\d.-]", "")));
+		return drone.getTemp();
+	}
+	
+	@Override
+	public double getBarometer()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_BAROMETER);
+		String barometer = telloCommunication.executeReadCommand(command);
+		drone.setBarometer(Double.parseDouble(barometer.trim()));
+		return drone.getBarometer();
+	}
+	
+	@Override
+	public int[] getAttitude()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_ATTITUDE);
+		String attitude = telloCommunication.executeReadCommand(command);
+		
+		String spry[] = attitude.split(";");
+		int pry[] = new int[3];
 
+		for (int i = 0; i < 3; i++)
+		{
+			String axis[] = spry[i].split(":");
+			pry[i] = Integer.parseInt(axis[1]);
+			//logger.info(Integer.toString(pry[i]));
+ 		}
 
-  /**
-   * Enter command mode. You can only execute commands after this call.
-   */
-  void enterCommandMode();
+		drone.setAttitude(pry);
+		
+		return drone.getAttitude();
+	}
+	
+	@Override
+	public double[] getAcceleration()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_ACCELERATION);
+		String acceleration = telloCommunication.executeReadCommand(command);
+		
+		String sxyz[] = acceleration.split(";");
+		double xyz[] = new double[3];
 
-  /**
-   * Taking off from the ground.
-   */
-  void takeOff();
+		for (int i = 0; i < 3; i++)
+		{
+			String axis[] = sxyz[i].split(":");
+			xyz[i] = Double.parseDouble(axis[1]);
+			//logger.info(Double.toString(xyz[i]));
+ 		}
 
-  /**
-   * Landing on the ground.
-   */
-  void land();
+		drone.setAcceleration(xyz);
+		return drone.getAcceleration();
+	}
+	
+	@Override
+	public double getTof()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_TOF);
+		String tof = telloCommunication.executeReadCommand(command);
+		drone.setTof(Double.parseDouble(tof.trim().replaceAll("[^\\d.-]", "")) / 10);
+		return drone.getTof();
+	}
 
-  /**
-   * Doing a flip in the chosen direction.
-   *
-   * @param telloFlip Type of the flip.
-   */
-  void doFlip(TelloFlip telloFlip);
+	@Override
+	public String getSN()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.SN);
+		String sn = telloCommunication.executeReadCommand(command);
+		drone.setSN(sn.trim());
+		return drone.getSN();
+	}
 
-  /**
-   * Set the drone's speed.
-   *
-   * @param speed Chosen speed (10-100 cm/s).
-   */
-  void setSpeed(Integer speed);
+	@Override
+	public void goTo( Integer x, Integer y, Integer z, Integer speed )
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.GO, 
+				x.toString() + " " + y.toString() + " " + z.toString() + " " + speed.toString());
+		telloCommunication.executeCommand(command);
+	}
 
-  /**
-   * Move forward.
-   * @param distance (20-500 cm).
-   */
-  void forward(Integer distance);
+	@Override
+	public void flyRC( Integer lr, Integer fb, Integer ud, Integer yaw )
+	{
+		TelloCommand command = new ComplexTelloCommand(TelloCommandValues.RC, 
+				lr.toString() + " " + fb.toString() + " " + ud.toString() + " " + yaw.toString());
+		telloCommunication.executeCommandNoWait(command);
+	}
 
-  /**
-   * Move backward.
-   * @param distance (20-500 cm).
-   */
-  void backward(Integer distance);
+	@Override
+	public String getSDK()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.SDK);
+		String sdk = telloCommunication.executeReadCommand(command);
+		drone.setSDK(sdk.trim());
+		return drone.getSDK();
+	}
 
-  /**
-   * Move right.
-   * @param distance (20-500 cm).
-   */
+	@Override
+	public void stop()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.STOP);
+		telloCommunication.executeCommand(command);
+	}
 
-  void right(Integer distance);
+	@Override
+	public void emergency()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.EMERGENCY);
+		telloCommunication.executeCommand(command);
+	}
 
-  /**
-   * Move left.
-   * @param distance (20-500 cm).
-   */
+	@Override
+	public void streamOn()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.ENABLE_VIDEO_STREAM);
+		telloCommunication.executeCommand(command);
+	}
 
-  void left(Integer distance);
+	@Override
+	public void streamOff()
+	{
+		TelloCommand command = new BasicTelloCommand(TelloCommandValues.DISABLE_VIDEO_STREAM);
+		telloCommunication.executeCommand(command);
+	}
 
-  /**
-   * Move up.
-   * @param distance (20-500 cm).
-   */
+	@Override
+	public void startStatusMonitor()
+	{
+		logger.fine("starting status monitor thread");
+		
+		if (statusMonitorThread != null) return;
 
-  void up(Integer distance);
+		statusMonitorThread = new StatusMonitor();
+		statusMonitorThread.start();
+	}
 
-  /**
-   * Move down.
-   * @param distance (20-500 cm).
-   */
+	@Override
+	public void stopStatusMonitor()
+	{
+		if (statusMonitorThread != null) statusMonitorThread.interrupt();
 
-  void down(Integer distance);
+		logger.fine("stopping status monitor thread");
+		
+		statusMonitorThread = null;
+	}
+	
+	private class StatusMonitor extends Thread
+	{
+		StatusMonitor()
+		{
+			logger.fine("monitor thread constructor");
+			
+			this.setName("StatusMonitor");
+	    }
+		
+	    public void run()
+	    {
+			logger.fine("monitor thread start");
+			
+	    	try
+	    	{
+	    		while (!isInterrupted())
+	    		{
+	    			String logData = telloCommunication.receiveStatusData();
+	    			
+	    			logger.finer(logData);
+	    			
+	    			String[] keyValuePairs = logData.split(";"); 
+	    			
+	    			for(String pair : keyValuePairs)                        // iterate over the pairs.
+	    			{
+	    				int[] attpry = new int[3];
+	    				double[] accelxyz = new double[3], veloxyz = new double[3];
+	    				
+	    			    String[] entry = pair.split(":");                   // split the pairs to get key and value. 
+	    			    
+	    			    switch (entry[0])
+	    			    {
+	    			    	case "bat": drone.setBattery(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "time": drone.setTime(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "temph": drone.setTemp(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "tof": drone.setTof(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "h": drone.setHeight(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "baro": drone.setBarometer(Double.parseDouble(entry[1].trim())); break;
+	    			    	case "pitch": attpry[0] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "roll": attpry[1] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "yaw": attpry[2] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "agx": accelxyz[0] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "agy": accelxyz[1] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "agz": accelxyz[2] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "vgx": veloxyz[0] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "vgy": veloxyz[1] = Double.parseDouble(entry[1].trim()); break;
+	    			    	case "vgz": veloxyz[2] = Double.parseDouble(entry[1].trim()); break;
+	    			    }
+	    			    
+	    			    drone.setAttitude(attpry);
+	    			    
+	    			    drone.setAcceleration(accelxyz);
+	    			    
+	    			    drone.setVelocity(veloxyz);
+	    			}
+	    		}
+	    	}
+	    	catch (Exception e) { logger.warning("status monitor failed: " + e.getMessage()); }
+	    	finally {}
+	    	
+	    	statusMonitorThread =  null;
+	    }
+	}
 
-  /**
-   * rotate right.
-   * @param angle (0-3600 deg).
-   */
-  void rotateRight(Integer angle);
+	@Override
+	public void startKeepAlive()
+	{
+		logger.fine("starting keepalive thread");
+		
+		if (keepAliveThread != null) return;
 
-  /**
-   * rotate left.
-   * @param angle (0-3600 deg).
-   */
-  void rotateLeft(Integer angle);
-  
-  /**
-   * Fly to these offsets from current position.
-   * @param x X axis offset (20-500 cm).
-   * @param y Y axis offset (20-500 cm).
-   * @param z Z axis offset (20-500 cm).
-   * @param speed Speed of movement (10-100 cm/s).
-   */
-  void goTo(Integer x, Integer y, Integer z, Integer speed);
-  
-  /**
-   * Fly by remote control.
-   * @param lr Left/Right (-100 to 100).
-   * @param fb forward/backward (-100 to 100).
-   * @param ud up/down (-100 to 100).
-   * @param yaw
-   */
-  void flyRC(Integer lr, Integer fb, Integer ud, Integer yaw);
+		keepAliveThread = new KeepAlive();
+		keepAliveThread.start();
+	}
 
-  /**
-   * Get current battery level.
-   * @return Battery level %.
-   */
-  int getBattery();
-  
-  /**
-   * Get current speed setting.
-   * @return Speed (1-100 cm/s).
-   */
-  int getSpeed();
-  
-  /**
-   * Get flight time.
-   * @return Flight time in seconds.
-   */
-  int getTime();
-  
-  /**
-   * Get drone height.
-   * @return Height (0-3000 cm).
-   */
-  int getHeight();
-  
-  /**
-   * Get drone temperature.
-   * @return Temperature in degrees C (0-90).
-   */
-  int getTemp();
-  
-  /**
-   * Get barometric pressure.
-   * @return Pressure in millibars.	
-   */
-  double getBarometer();
-  
-  /**
-   * Get IMU attitude data.
-   * @return Pitch, roll, yaw.
-   */
-  int[] getAttitude();
-  
-  /**
-   * Get IMU acceleration.
-   * @return Angular acceleration x, y, z (.001 g).
-   */
-  double[] getAcceleration();
-  
-  /**
-   * Get distance from TOF.
-   * @return Distance (30-1000 cm).
-   */
-  double getTof();
-  
-  /**
-   * Get drone serial number. Requires EDU with SDK 1.3 or later.
-   * @return Serial Number.
-   */
-  String getSN();
+	@Override
+	public void stopKeepAlive()
+	{
+		if (keepAliveThread != null) keepAliveThread.interrupt();
 
-  /**
-   * Get drone connection status.
-   * @return Connection status.
-   */
-  TelloConnection getConnection();
-  
-  /**
-   * Get drone sdk version. Requires EDU with SDK 1.3 or later.
-   * @return Version.
-   */
-  String getSDK();
-  
-  /**
-   * Stop drone motion, goes into hover.
-   */
-  void stop();
-  
-  /**
-   * Stop all motors.
-   */
-  void emergency();
-  
-  /**
-   * Turn on video stream.
-   */
-  void streamOn();
-  
-  /**
-   * Turn off video stream.
-   */
-  void streamOff();
-  
-  /**
-   * Start monitoring the status updates sent by the Tello.
-   * Requires SDK 1.3 or later.
-   */
-  void startStatusMonitor();
-  
-  /**
-   * Stop monitoring the status updates sent by the Tello.
-   * Requires SDK 1.3 or later. Monitor will be stopped when
-   * disconnect() is called.
-   */
-  void stopStatusMonitor();
-  
-  /**
-   * Start keep alive thread that pings the Tello every 10 seconds
-   * with a get battery level command to keep the Tello from shutting
-   * down automatically if it receives no commands for 15 seconds.
-   */
-  void startKeepAlive();
-  
-  /**
-   * Stops the keep alive thread. Thread will be stopped when disconnect()
-   * is called.
-   */
-  void stopKeepAlive();
-  
-  /**
-   * Return the TelloDrone instance maintained by TelloControl.
-   * @return The drone instance.
-   */
-  TelloDrone getDrone();
+		logger.fine("stopping keepalive thread");
+		
+		keepAliveThread = null;
+	}
+	
+	private class KeepAlive extends Thread
+	{
+		KeepAlive()
+		{
+			logger.fine("KeepAlive thread constructor");
+			
+			this.setName("KeepAlive");
+	    }
+		
+	    public void run()
+	    {
+			logger.fine("keepalive thread start");
+			
+	    	try
+	    	{
+	    		while (!isInterrupted())
+	    		{
+	    			sleep(10000);	// 10 seconds.
+	    			
+	    			getBattery();
+	    		}
+	    	}
+	    	catch (InterruptedException e) {}
+	    	catch (Exception e) { logger.warning("keepalive failed: " + e.getMessage()); }
+	    	
+	    	keepAliveThread =  null;
+	    }
+	}
+
+	@Override
+	public TelloDroneInterface getDrone()
+	{
+		return drone;
+	}
 }

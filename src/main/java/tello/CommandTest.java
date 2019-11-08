@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 import tello.command.TelloFlip;
 import tello.communication.TelloConnection;
+import tello.control.TelloControlInterface;
 import tello.control.TelloControl;
-import tello.control.TelloControlImpl;
 
 public class CommandTest
 {
@@ -18,7 +18,7 @@ public class CommandTest
 	{
 		logger.info("start");
 		
-	    TelloControl telloControl = new TelloControlImpl(Level.FINER);
+	    TelloControlInterface telloControl = new TelloControl(Level.FINER);
 
 	    try 
 	    {

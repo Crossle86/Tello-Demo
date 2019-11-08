@@ -2,61 +2,198 @@ package tello.drone;
 
 import tello.communication.TelloConnection;
 
-public interface TelloDrone 
+/**
+ * Implements the Tello Drone Interface.
+ */
+public class TelloDrone implements TelloDroneInterface
 {
-  Integer getBattery();
+  /*
+   * Connection IP address.
+   */
+  public static final String IP_ADDRESS = "192.168.10.1";
 
-  void setBattery(Integer battery);
+  /*
+   * Connection UDP Port.
+   */
+  public static final Integer UDP_PORT = 8889, UDP_STATUS_PORT = 8890;
+  
+  private int				battery, height, speed, time, temp, attitude[];
+  private double			barometer, tof, acceleration[], velocity[];
+  private String			sn, sdk;
+  private TelloConnection 	telloConnection;
+  private TelloMode 		telloMode;
 
-  Integer getSpeed();
+  public TelloDrone() 
+  {
+    telloConnection = TelloConnection.DISCONNECTED;
+    telloMode = TelloMode.NORMAL;
+  }
 
-  void setSpeed(Integer speed);
+  @Override
+  public Integer getBattery() 
+  {
+    return battery;
+  }
 
-  Integer getTime();
+  @Override
+  public void setBattery(Integer battery) 
+  {
+    this.battery = battery;
+  }
 
-  void setTime(Integer time);
+  @Override
+  public Integer getSpeed() 
+  {
+    return speed;
+  }
 
-  TelloConnection getConnection();
+  @Override
+  public void setSpeed(Integer speed) 
+  {
+    this.speed = speed;
+  }
 
-  void setConnection(TelloConnection telloConnection);
+  @Override
+  public Integer getTime() 
+  {
+    return time;
+  }
 
-  TelloMode getMode();
+  @Override
+  public void setTime(Integer time) 
+  {
+    this.time = time;
+  }
 
-  void setMode(TelloMode telloMode);
+  @Override
+  public TelloConnection getConnection() 
+  {
+    return telloConnection;
+  }
 
-  void setTemp( int parseInt );
+  @Override
+  public void setConnection(TelloConnection telloConnection) 
+  {
+    this.telloConnection = telloConnection;
+  }
 
-  int getTemp();
+  @Override
+  public TelloMode getMode() 
+  {
+    return telloMode;
+  }
 
-  void setBarometer( double parseInt );
+  @Override
+  public void setMode(TelloMode telloMode) 
+  {
+    this.telloMode = telloMode;
+  }
 
-  double getBarometer();
+  @Override
+  public void setTemp( int temp )
+  {
+	this.temp = temp;
+  }
 
-  void setTof( double parseInt );
+  @Override
+  public int getTemp()
+  {
+	return temp;
+  }
 
-  double getTof();
+  @Override
+  public void setBarometer( double barometer )
+  {
+	this.barometer = barometer;
+  }
 
-  void setSN( String trim );
+  @Override
+  public double getBarometer()
+  {
+	return barometer;
+  }
 
-  String getSN();
+  @Override
+  public void setTof( double tof )
+  {
+	this.tof = tof;
+  }
 
-  void setHeight( int parseInt );
+  @Override
+  public double getTof()
+  {
+	return tof;
+  }
 
-  int getHeight();
+  @Override
+  public void setSN( String sn )
+  {
+	this.sn = sn;
+  }
 
-  void setAttitude( int[] pry );
+  @Override
+  public String getSN()
+  {
+	return sn;
+  }
 
-  int[] getAttitude();
+  @Override
+  public void setHeight( int height )
+  {
+	this.height = height;
+  }
 
-  void setAcceleration( double[] xyz );
+  @Override
+  public int getHeight()
+  {
+	return height;
+  }
 
-  double[] getAcceleration();
+  @Override
+  public void setAttitude( int[] pry )
+  {
+	attitude  = pry;
+  }
 
-  void setVelocity( double[] xyz );
+  @Override
+  public int[] getAttitude()
+  {
+	return attitude;
+  }
 
-  double[] getVelocity();
+  @Override
+  public void setAcceleration( double[] xyz )
+  {
+	acceleration = xyz;
+  }
 
-  void setSDK( String trim );
+  @Override
+  public double[] getAcceleration()
+  {
+	return acceleration;
+  }
 
-  String getSDK();
+  @Override
+  public void setSDK( String sdk )
+  {
+	this.sdk = sdk;
+  }
+
+  @Override
+  public String getSDK()
+  {
+	return sdk;
+  }
+
+  @Override
+  public void setVelocity( double[] xyz )
+  {
+    this.velocity = xyz;
+  }
+
+  @Override
+  public double[] getVelocity()
+  {
+	return velocity;
+  }
 }

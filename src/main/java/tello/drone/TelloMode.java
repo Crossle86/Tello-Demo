@@ -1,6 +1,7 @@
 package tello.drone;
 
-public enum TelloMode {
+public enum TelloMode 
+{
   COMMAND,
   NORMAL
 }

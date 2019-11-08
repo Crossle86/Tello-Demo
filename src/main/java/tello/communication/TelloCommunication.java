@@ -1,56 +1,218 @@
 package tello.communication;
 
+import tello.command.TelloCommand;
+import tello.drone.TelloDrone;
+import tello.exception.TelloCommandException;
+import tello.exception.TelloConnectionException;
+
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
-import tello.command.TelloCommand;
-
-public interface TelloCommunication {
-
-  /**
-   * Establishing connection to the Tello drone.
-   * @throws Exception for any errors.
-   */
-  void connect();
+/**
+ * Implementation of TelloCommunication Interface.
+ */
+public class TelloCommunication implements TelloCommunicationInterface 
+{
+	private final Logger logger = Logger.getLogger("Tello");
 
   /**
-   * Executes commands on Tello drone.
-   * @param telloCommand The command to be executed.
-   * @throws TelloCommandException for errors.
+   * Datagram for UDP connection to the Tello drone.
    */
-  void executeCommand(final TelloCommand telloCommand);  
+  private DatagramSocket ds, dsStatus;
 
   /**
-   * Executes commands on Tello drone that return data.
-   * @param telloCommand The command to be executed.
-   * @return Data returned from Tello or empty string.
-   * @throws TelloCommandException for errors.
+   * Drone IP address.
    */
-  String executeReadCommand(final TelloCommand tellocommand);
+  private InetAddress ipAddress;
 
   /**
-   * Executes a list of commands on Tello drone.
-   * @param telloCommandList The list of commands to be executed.
-   * @throws TelloCommandException for errors.
+   * Drone UDP ports and timeout.
    */
-  void executeCommands(final List<TelloCommand> telloCommandList);
+  private Integer udpPort, udpStatusPort, socketTimeout = 10000;
 
-  /**
-   * Disconnect from the Tello.
-   */
-  void disconnect();
+  public TelloCommunication() throws TelloConnectionException 
+  {
+    try 
+    {
+      ipAddress = InetAddress.getByName(TelloDrone.IP_ADDRESS);
+      udpPort = TelloDrone.UDP_PORT;
+      udpStatusPort = TelloDrone.UDP_STATUS_PORT;
+    } catch (Exception e) {
+      throw new TelloConnectionException(e);
+    }
+  }
 
-  /**
-   * Obtains data about the Tello drone.
-   *
-   * @param valuesToBeObtained Values (names) to be obtained from the drone.
-   * @return Map of the data.
-   * @throws TelloCommandException for errors.
-   */
-  Map<String, String> getTelloOnBoardData(List<String> valuesToBeObtained);
+  @Override
+  public void connect() 
+  {
+    try 
+    {
+      logger.info("Connecting to drone...");
+      
+      ds = new DatagramSocket(udpPort);
+      ds.setSoTimeout(socketTimeout);	// timeout on socket operations.
+      ds.connect(ipAddress, udpPort);
+      
+      if (!ipAddress.isReachable(100)) throw new TelloConnectionException("Tello not responding");
+      
+      dsStatus = new DatagramSocket(udpStatusPort);
+      
+      logger.info("Connected!");
+    } catch (Exception e) {
+      if (dsStatus != null) dsStatus.close();
+      if (ds != null) ds.close();
+      //e.printStackTrace();
+      throw new TelloConnectionException("Connect failed" , e);
+    }
+  }
+
+  @Override
+  public synchronized void executeCommand(final TelloCommand telloCommand)  
+  {
+	String response;
+
+	if (telloCommand == null) throw new TelloCommandException("Command was null");
+     
+    if (!ds.isConnected()) throw new TelloConnectionException("No connection");
+
+    final String command = telloCommand.composeCommand();
+    
+    logger.fine("executing command: " + command);
+
+    try 
+    {
+      sendData(command);
+      response = receiveData();
+    } catch (Exception e) {
+      throw new TelloConnectionException(e);
+    } 
+
+    logger.fine("response: " + response);
+
+    if (response.toLowerCase().startsWith("forced stop")) return;
+    if (response.toLowerCase().startsWith("unknown command")) throw new TelloCommandException("unknown command");
+    if (response.toLowerCase().startsWith("out of range")) throw new TelloCommandException("invalid parameter");
+    if (!response.toLowerCase().startsWith("ok")) throw new TelloCommandException("command failed");
+  }
+
+  @Override
+  public synchronized void executeCommandNoWait(final TelloCommand telloCommand)  
+  {
+	if (telloCommand == null) throw new TelloCommandException("Command was null");
+     
+    if (!ds.isConnected()) throw new TelloConnectionException("No connection");
+
+    final String command = telloCommand.composeCommand();
+    
+    logger.finer("executing command: " + command);
+
+    try 
+    {
+      sendData(command);
+    } catch (Exception e) {
+      throw new TelloConnectionException(e);
+    } 
+  }
+
+  @Override
+  public Map<String, String> getTelloOnBoardData(List<String> valuesToBeObtained) 
+  {
+    Map<String, String> dataMap = new HashMap<>();
+
+    return dataMap;
+  }
+
+  public synchronized String executeReadCommand(TelloCommand telloCommand) 
+  {
+	String response;
+	  
+	if (telloCommand == null) throw new TelloCommandException("Command was null");
+    
+    if (!ds.isConnected()) throw new TelloConnectionException("No connection");
+
+    final String command = telloCommand.composeCommand();
+    
+    logger.fine("executing command: " + command);
+
+    try 
+    {
+      sendData(command);
+      response = receiveData();
+    } catch (Exception e) {
+        throw new TelloConnectionException(e);
+    }
+
+    logger.fine("response: " + response);
+
+    if (response.toLowerCase().startsWith("unknown command")) throw new TelloCommandException("unknown command");
+    // Original Tello (not edu) has misspelled error return.
+    if (response.toLowerCase().startsWith("unkown command")) throw new TelloCommandException("unknown command");
+    if (response.toLowerCase().startsWith("out of range")) throw new TelloCommandException("invalid parameter");
+    if (response.toLowerCase().startsWith("error")) throw new TelloCommandException("command failed");
+    
+    return response;
+  }
+
+  @Override
+  public void executeCommands(List<TelloCommand> telloCommandList) 
+  {
+
+  }
+
+  @Override
+  public void disconnect() 
+  {
+	if (dsStatus != null) dsStatus.close();
+	
+	if (ds != null) ds.close();
+	
+	logger.info("Disconnected!");
+  }
+
+  private void sendData(String data) throws IOException 
+  {
+    byte[] sendData = data.getBytes();
+    final DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ipAddress, udpPort);
+    ds.send(sendPacket);
+  }
+
+  private String receiveData() throws IOException 
+  {
+    byte[] receiveData = new byte[1024];
+    final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+    ds.receive(receivePacket);
+    return trimExecutionResponse(receiveData, receivePacket);
+  }
+
+  public String receiveStatusData() throws IOException 
+  {
+    byte[] receiveData = new byte[1024];
+    final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+    dsStatus.receive(receivePacket);
+    return trimExecutionResponse(receiveData, receivePacket);
+  }
+
+  private String trimExecutionResponse(byte[] response, DatagramPacket receivePacket) 
+  {
+    response = Arrays.copyOf(response, receivePacket.getLength());
+    return new String(response, StandardCharsets.UTF_8);
+  }
   
-  public String receiveStatusData() throws IOException;
-
-  void executeCommandNoWait( TelloCommand telloCommand ); 
+  public void setTimeout(int ms) 
+  {
+	  socketTimeout = ms;
+  }
+  
+  public int getTimeout() 
+  {
+	  return socketTimeout;
+  }
 }

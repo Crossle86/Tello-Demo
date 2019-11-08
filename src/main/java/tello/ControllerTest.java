@@ -8,8 +8,8 @@ import com.studiohartman.jamepad.ControllerState;
 
 import tello.command.TelloFlip;
 import tello.communication.TelloConnection;
+import tello.control.TelloControlInterface;
 import tello.control.TelloControl;
-import tello.control.TelloControlImpl;
 
 public class ControllerTest
 {
@@ -29,7 +29,7 @@ public class ControllerTest
 		
 		logger.info("start");
 		
-	    TelloControl telloControl = new TelloControlImpl(Level.FINE);
+	    TelloControlInterface telloControl = new TelloControl(Level.FINE);
 
 	    try 
 	    {

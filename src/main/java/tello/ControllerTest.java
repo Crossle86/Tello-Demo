@@ -61,8 +61,16 @@ public class ControllerTest
 		    	if (currState.startJustPressed)
 		    	{
 		    		logger.info("start button");
-		    		telloControl.takeOff();
-		    		flying = true;
+		    		if (flying)
+		    		{
+		    			telloControl.land();
+		    			flying = false;
+		    		}
+		    		else
+		    		{
+		    			telloControl.takeOff();
+		    			flying = true;
+		    		}
 		    	}
 		    	
 		    	if (flying)

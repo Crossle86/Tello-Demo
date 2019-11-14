@@ -1,6 +1,6 @@
 package tello.communication;
 
-import tello.command.TelloCommand;
+import tello.command.TelloCommandInterface;
 import tello.drone.TelloDrone;
 import tello.exception.TelloCommandException;
 import tello.exception.TelloConnectionException;
@@ -75,7 +75,7 @@ public class TelloCommunication implements TelloCommunicationInterface
   }
 
   @Override
-  public synchronized void executeCommand(final TelloCommand telloCommand)  
+  public synchronized void executeCommand(final TelloCommandInterface telloCommand)  
   {
 	String response;
 
@@ -104,7 +104,7 @@ public class TelloCommunication implements TelloCommunicationInterface
   }
 
   @Override
-  public synchronized void executeCommandNoWait(final TelloCommand telloCommand)  
+  public synchronized void executeCommandNoWait(final TelloCommandInterface telloCommand)  
   {
 	if (telloCommand == null) throw new TelloCommandException("Command was null");
      
@@ -130,7 +130,7 @@ public class TelloCommunication implements TelloCommunicationInterface
     return dataMap;
   }
 
-  public synchronized String executeReadCommand(TelloCommand telloCommand) 
+  public synchronized String executeReadCommand(TelloCommandInterface telloCommand) 
   {
 	String response;
 	  
@@ -162,7 +162,7 @@ public class TelloCommunication implements TelloCommunicationInterface
   }
 
   @Override
-  public void executeCommands(List<TelloCommand> telloCommandList) 
+  public void executeCommands(List<TelloCommandInterface> telloCommandList) 
   {
 
   }

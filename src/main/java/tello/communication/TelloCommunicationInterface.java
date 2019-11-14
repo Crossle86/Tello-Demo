@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import tello.command.TelloCommand;
+import tello.command.TelloCommandInterface;
 
 /**
  * Low level support interface for sending and receiving data from DJI Tello drone.
@@ -25,7 +25,7 @@ public interface TelloCommunicationInterface
    * @param telloCommand The command to be executed.
    * @throws TelloCommunicationException, TelloCommandException for errors.
    */
-  void executeCommand(final TelloCommand telloCommand);  
+  void executeCommand(final TelloCommandInterface telloCommand);  
 
   /**
    * Executes command on Tello drone that returns data. Waits until timeout
@@ -34,14 +34,14 @@ public interface TelloCommunicationInterface
    * @return Data returned from Tello or empty string.
    * @throws TelloCommunicationException, TelloCommandException for errors.
    */
-  String executeReadCommand(final TelloCommand tellocommand);
+  String executeReadCommand(final TelloCommandInterface tellocommand);
 
   /**
    * Executes a list of commands on Tello drone.
    * @param telloCommandList The list of commands to be executed.
    * @throws TelloCommunicationException, TelloCommandException for errors.
    */
-  void executeCommands(final List<TelloCommand> telloCommandList);
+  void executeCommands(final List<TelloCommandInterface> telloCommandList);
 
   /**
    * Disconnect from the Tello. Close sockets.
@@ -70,5 +70,5 @@ public interface TelloCommunicationInterface
    * @param telloCommand The command to be executed.
    * @throws TelloCommunicationException, TelloCommandException for errors.
    */
-  void executeCommandNoWait( TelloCommand telloCommand ); 
+  void executeCommandNoWait( TelloCommandInterface telloCommand ); 
 }

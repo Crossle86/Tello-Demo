@@ -1,23 +1,28 @@
 package tello.command;
 
-public abstract class AbstractTelloCommand implements TelloCommand {
+public abstract class AbstractTelloCommand implements TelloCommandInterface 
+{
 
   protected String command, parameters;
 
-  public AbstractTelloCommand(String command) {
+  public AbstractTelloCommand(String command) 
+  {
     this.command = command;
   }
   
-  public AbstractTelloCommand(String command, String parameters) {
+  public AbstractTelloCommand(String command, String parameters) 
+  {
 	 this.command = command;
 	 this.parameters = parameters;
   }
   
-  public String getCommand() {
+  public String getCommand() 
+  {
     return command;
   }
 
-  public void setCommand(String command) {
+  public void setCommand(String command) 
+  {
     this.command = command;
   }
   
@@ -25,7 +30,8 @@ public abstract class AbstractTelloCommand implements TelloCommand {
     return parameters;
   }
 
-  public void setParameters(String parameters) {
+  public void setParameters(String parameters) 
+  {
     this.parameters = parameters;
   }
 }

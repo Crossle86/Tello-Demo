@@ -1,6 +1,6 @@
 package tello.command;
 
-public interface TelloCommand {
+public interface TelloCommandInterface {
 
   /**
    * Compose the command with all the parameters necessary.

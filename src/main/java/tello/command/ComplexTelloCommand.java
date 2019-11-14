@@ -2,38 +2,39 @@ package tello.command;
 
 import java.util.Objects;
 
-public class ComplexTelloCommand extends AbstractTelloCommand {
-
-  public ComplexTelloCommand(String command, String parameters) {
+public class ComplexTelloCommand extends AbstractTelloCommand 
+{
+  public ComplexTelloCommand(String command, String parameters) 
+  {
     super(command, parameters);
   }
 
   @Override
-  public String composeCommand() {
+  public String composeCommand() 
+  {
     return command + " " + parameters;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
+  public boolean equals(Object o) 
+  {
+    if (this == o) return true;
     
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+    if (o == null || getClass() != o.getClass()) return false;
     
     BasicTelloCommand that = (BasicTelloCommand) o;
     return Objects.equals(command, that.command);
   }
 
   @Override
-  public int hashCode() {
+  public int hashCode() 
+  {
     return Objects.hash(command);
   }
 
   @Override
-  public String toString() {
+  public String toString() 
+  {
     return "ComplexTelloCommand{"
         + "command='" + command + " " + parameters + '\''
         + '}';

@@ -136,31 +136,26 @@ public class TelloCommandValues {
   /**
    * Obtain the Tello barometeric pressure in millibars.
    */
-
   public static final String CURRENT_BAROMETER = "baro?";
 
   /**
    * Obtain the Tello tof value in millimeters.
    */
-
   public static final String CURRENT_TOF ="tof?";
 
   /**
    * Obtain the Tello temperature C.
    */
-
   public static final String CURRENT_TEMPERATURE = "temp?";
 
   /**
    * Obtain the Tello attitude in 3 axes, pitch, roll, yaw.
    */
-
   public static final String CURRENT_ATTITUDE = "attitude?";
 
   /**
    * Obtain the Tello height in decimeters.
    */
-
   public static final String CURRENT_HEIGHT = "height?";
 
   /**

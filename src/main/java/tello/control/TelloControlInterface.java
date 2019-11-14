@@ -11,7 +11,7 @@ import tello.exception.TelloCommandException;
 public interface TelloControlInterface 
 {
   /**
-   * Establishing connection to the Tello Drone.
+   * Establishes connection to the Tello Drone.
    */
   void connect();
 

@@ -5,10 +5,10 @@ import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import tello.command.TelloFlip;
-import tello.communication.TelloConnection;
-import tello.control.TelloControlInterface;
-import tello.control.TelloControl;
+import tello.lib.command.TelloFlip;
+import tello.lib.communication.TelloConnection;
+import tello.lib.control.TelloControl;
+import tello.lib.control.TelloControlInterface;
 
 public class CommandTest
 {

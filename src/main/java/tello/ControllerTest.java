@@ -38,6 +38,8 @@ public class ControllerTest
 		    
 		    telloControl.startStatusMonitor();
 		    
+		    telloControl.streamOn();
+		    
 		    telloControl.startKeepAlive();
 		    
 		    while(true) 
@@ -75,14 +77,15 @@ public class ControllerTest
 		    	
 		    	if (flying)
 		    	{
-		    		// scale controller stick range -1.0 to + 1.0 to -100 to + 100
-		    		// used by the drone flyRC command.
+		    		// scale controller stick axis range -1.0 to + 1.0 to -100 to + 100
+		    		// used by the drone flyRC command. Apply a dead zone to allow
+		    		// for stick axis not always returning 0 when released.
 		    		leftX = deadZone((int) (currState.leftStickX * 100.0), 3);
 		    		leftY = deadZone((int) (currState.leftStickY * 100.0), 3);
 		    		rightX = deadZone((int) (currState.rightStickX * 100), 3);
 		    		rightY = deadZone((int) (currState.rightStickY * 100), 3);
 		    		
-		    		logger.info(rightX + " " + rightY + " " + leftY + " " + leftX);
+		    		//logger.info(rightX + " " + rightY + " " + leftY + " " + leftX);
 		    		
 	    			telloControl.flyRC(rightX, rightY, leftY, leftX);
 		    		

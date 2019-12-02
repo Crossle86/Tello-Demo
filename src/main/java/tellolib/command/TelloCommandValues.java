@@ -3,8 +3,8 @@ package tellolib.command;
 /**
  * Commands for the DJI Tello drone. Source: https://github.com/grofattila/dji-tello/blob/experimental/Tello_SDK.pdf
  */
-public class TelloCommandValues {
-
+public class TelloCommandValues 
+{
   /**
    * Enter command mode.
    */
@@ -134,7 +134,7 @@ public class TelloCommandValues {
   public static final String SN = "sn?";
 
   /**
-   * Obtain the Tello barometeric pressure in millibars.
+   * Obtain the Tello barometric pressure in millibars.
    */
   public static final String CURRENT_BAROMETER = "baro?";
 

@@ -244,4 +244,14 @@ public interface TelloControlInterface
    * @return The drone instance.
    */
   TelloDroneInterface getDrone();
+  
+  void startVideoCapture();
+  
+  void stopVideoCapture();
+  
+  void takePicture(String folder);
+  
+  void startRecording(String folder);
+  
+  void stopRecording();
 }

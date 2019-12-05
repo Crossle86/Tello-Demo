@@ -42,6 +42,8 @@ public class ControllerTest
 		    
 		    telloControl.startKeepAlive();
 		    
+		    telloControl.startVideoCapture();
+		    
 		    while(true) 
 		    {
 		    	ControllerState currState = controllers.getState(0);
@@ -52,17 +54,23 @@ public class ControllerTest
 		    		break;
 		    	}
 		    	  
-		    	if (currState.back) 
+		    	if (currState.backJustPressed) 
 		    	{
 		    		logger.info("back button");
-		    		telloControl.land();
-		    		flying = false;
+		    		
+		    		if (flying)
+		    		{
+		    			telloControl.land();
+		    			flying = false;
+		    		}
+		    		
 		    		break;
 		    	}
 
 		    	if (currState.startJustPressed)
 		    	{
 		    		logger.info("start button");
+		    		
 		    		if (flying)
 		    		{
 		    			telloControl.land();
@@ -74,6 +82,8 @@ public class ControllerTest
 		    			flying = true;
 		    		}
 		    	}
+		    	
+		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir"));
 		    	
 		    	if (flying)
 		    	{

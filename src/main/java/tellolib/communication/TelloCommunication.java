@@ -24,7 +24,7 @@ public class TelloCommunication implements TelloCommunicationInterface
 	private final Logger logger = Logger.getLogger("Tello");
 
   /**
-   * Datagram for UDP connection to the Tello drone.
+   * Datagram sockets for UDP communication with the Tello drone.
    */
   private DatagramSocket ds, dsStatus;
 
@@ -176,7 +176,7 @@ public class TelloCommunication implements TelloCommunicationInterface
 	
 	logger.info("Disconnected!");
   }
-
+  
   private void sendData(String data) throws IOException 
   {
     byte[] sendData = data.getBytes();

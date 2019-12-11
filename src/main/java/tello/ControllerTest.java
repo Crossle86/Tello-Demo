@@ -35,6 +35,7 @@ public class ControllerTest
 	    try 
 	    {
 		    telloControl.connect();
+		    
 		    telloControl.enterCommandMode();
 		    
 		    telloControl.startStatusMonitor();
@@ -43,7 +44,7 @@ public class ControllerTest
 		    
 		    telloControl.startKeepAlive();
 		    
-		    telloControl.startVideoCapture();
+		    telloControl.startVideoCapture(true);
 		    
 		    while(true) 
 		    {
@@ -95,6 +96,8 @@ public class ControllerTest
 		    	}
 		    	
 		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir") + "\\Photos");
+		    	
+		    	if (currState.xJustPressed) logger.info("speed=" + telloControl.getSpeed());
 		    	
 		    	if (flying)
 		    	{

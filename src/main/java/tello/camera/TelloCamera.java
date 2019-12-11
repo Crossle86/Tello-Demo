@@ -1,5 +1,6 @@
 package tello.camera;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
@@ -34,7 +35,7 @@ public class TelloCamera implements TelloCameraInterface
 	private Mat					image;
 	private VideoWriter			videoWriter;
 	private ImageWindow			imageWindow;
-	private Size				videoFrameSize = new Size(480, 360);
+	private Size				videoFrameSize = new Size(960, 720);
 	private double				videoFrameRate = 30;
 	private SimpleDateFormat	df = new SimpleDateFormat("yyyy-MM-dd.HHmmss");
 	private JFrame				jFrame;
@@ -46,12 +47,13 @@ public class TelloCamera implements TelloCameraInterface
 	}
 	
 	@Override
-	public void startVideoCapture()
+	public void startVideoCapture(boolean liveWindow)
 	{
 		logger.fine("starting video capture");
 		
 		if (camera != null) return;
 
+		// Create VideoCapture object to accept video feed from drone.
 		camera = new VideoCapture();
 		
 	 	camera.setExceptionMode(true);
@@ -62,16 +64,21 @@ public class TelloCamera implements TelloCameraInterface
 		
 		image = new Mat();
 		
-        JFrame jFrame = new JFrame("Tello Controller Test");
-        jLabel = new JLabel();
-        jLabel.setSize((int) videoFrameSize.width, (int) videoFrameSize.height);
-        //frame.getContentPane().add(new JLabel(new ImageIcon(ImageIO.read(new ByteArrayInputStream(imageBytes.toArray())))));
-        //jFrame.setSize((int) videoFrameSize.width, (int) videoFrameSize.height);
-        jFrame.getContentPane().add(jLabel);
-        jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        jFrame.pack();
-        jFrame.setVisible(true);
+		// Create window to display live video feed.
 
+		if (liveWindow)
+		{
+	        jFrame = new JFrame("Tello Controller Test");
+	        jFrame.setMinimumSize(new Dimension((int) videoFrameSize.width, (int) videoFrameSize.height));
+	        jLabel = new JLabel();
+	        jFrame.getContentPane().add(jLabel);
+	        jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	        jFrame.pack();
+	        jFrame.setVisible(true);
+		}
+		
+        // Start thread to process images from video feed.
+		
 		videoCaptureThread = new VideoCaptureThread();
 		videoCaptureThread.start();
 	}
@@ -80,19 +87,37 @@ public class TelloCamera implements TelloCameraInterface
 	public void stopVideoCapture()
 	{
 		if (recording) stopRecording();
-		
-		if (videoCaptureThread != null) videoCaptureThread.interrupt();
 
 		logger.fine("stopping video capture thread");
 		
-		if (jFrame != null) jFrame.dispose();
+		if (videoCaptureThread != null) videoCaptureThread.interrupt();
+		
+		if (jFrame != null) 
+		{
+			jFrame.setVisible(false);
+			jFrame.dispose();
+		}
 		
 		camera.release();
 		image.release();
 		image = null;
 		camera = null;
 	}
+	
+	@Override
+	public Mat getImage()
+	{
+	    synchronized (this) 
+	    {
+	    	if (image == null)
+	    		return null;
+	    	else
+	    		return image.clone();
+	    }
+	}
 
+	// Thread to read the images of the video stream and process them
+	// as appropriate.
 	private class VideoCaptureThread extends Thread
 	{
 		VideoCaptureThread()
@@ -110,9 +135,17 @@ public class TelloCamera implements TelloCameraInterface
 			
 	    	try
 	    	{
+	    		// Loop reading images from the video feed storing the current image
+	    		// in the image variable.
 	    		while (!isInterrupted())
 	    		{
-	    			camera.read(image);
+	    		    synchronized (this) { camera.read(image); }
+	    		    
+	    		    // write image to live window if open.
+	    		    
+	    		    if (jFrame != null)	updateLiveWindow(image);
+	    			
+	    			// Write image to recording file if recording.
 	    			
 	    			if (recording) 
 	    			{
@@ -126,7 +159,7 @@ public class TelloCamera implements TelloCameraInterface
 	    	catch (Exception e) { logger.warning("video capture failed: " + e.getMessage()); }
 	    	finally {}
 	    	
-	    	videoCaptureThread =  null;
+	    	videoCaptureThread = null;
 	    }
 	}
 
@@ -135,6 +168,7 @@ public class TelloCamera implements TelloCameraInterface
 	{
 		String	fileName = null;
 		boolean	result = false;
+		Mat		image;
 		
 		if (camera == null) 
 		{
@@ -142,21 +176,14 @@ public class TelloCamera implements TelloCameraInterface
 			return result;
 		}
 		
+		// Get a copy of the current image to work with.
+		image = getImage();
+		
 		if(image != null && !image.empty())
 		{
-			// Create and set up the window.
-			try
-			{
-		        // Convert image Mat to a jpeg
-		        MatOfByte imageBytes = new MatOfByte();
-		        Imgcodecs.imencode(".jpg", image, imageBytes);	        
-		        Image img = HighGui.toBufferedImage(image);
-		        jLabel.setIcon(new ImageIcon(ImageIO.read(new ByteArrayInputStream(imageBytes.toArray()))));
-			}
-			catch (Exception e) {logger.warning(e.toString());}
-			
 			fileName = folder + "\\" + df.format(new Date()) + ".jpg";
 			
+			logger.info("h=" + image.height() + ";w=" + image.width());
 			if (Imgcodecs.imwrite(fileName, image))
 			{
 				logger.fine("Picture saved to " + fileName);
@@ -169,6 +196,24 @@ public class TelloCamera implements TelloCameraInterface
 		return result;
 	}
 
+	// Update the live window with the supplied image.
+	private void updateLiveWindow(Mat image)
+	{
+		//logger.info("updateLiveWindow");
+		try
+		{
+	        // Convert image Mat to a jpeg.
+	        //MatOfByte imageBytes = new MatOfByte();
+	        //Imgcodecs.imencode(".jpg", getImage(), imageBytes);	        
+	        Image img = HighGui.toBufferedImage(image);
+	        
+	        // Set label component of the live window to new jpeg.
+	        jLabel.setIcon(new ImageIcon(img));
+	        //jLabel.setIcon(new ImageIcon(ImageIO.read(new ByteArrayInputStream(imageBytes.toArray()))));
+		}
+		catch (Exception e) {logger.warning("live window update failed: " + e.toString());}
+	}
+	
 	@Override
 	public boolean startRecording( String folder )
 	{

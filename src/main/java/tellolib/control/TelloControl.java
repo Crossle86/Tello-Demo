@@ -13,6 +13,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.opencv.core.Mat;
+
 import tello.camera.TelloCamera;
 
 /**
@@ -63,7 +65,7 @@ public class TelloControl implements TelloControlInterface
 	  stopVideoCapture();
 	  
 	  // This will land if we are still flying and throw away the error
-	  // returned  by land if we have already landed or never took off.
+	  // returned by land if we have already landed or never took off.
 	  
 	  try { land(); } catch (Exception e) {}
 	  
@@ -473,13 +475,13 @@ public class TelloControl implements TelloControlInterface
 	}
 
 	@Override
-	public void startVideoCapture()
+	public void startVideoCapture(boolean liveWindow)
 	{
 		if (telloCamera != null) stopVideoCapture();
 		
 		telloCamera = new TelloCamera();
 		
-		telloCamera.startVideoCapture();
+		telloCamera.startVideoCapture(liveWindow);
 	}
 
 	@Override
@@ -508,5 +510,23 @@ public class TelloControl implements TelloControlInterface
 	public void stopRecording()
 	{
 		if (telloCamera != null) telloCamera.stopRecording();
+	}
+
+	@Override
+	public boolean isRecording()
+	{
+		if (telloCamera != null) 
+			return telloCamera.isRecording();
+		else
+			return false;
+	}
+
+	@Override
+	public Mat getImage()
+	{
+		if (telloCamera != null) 
+			return telloCamera.getImage();
+		else
+			return null;
 	}
 }

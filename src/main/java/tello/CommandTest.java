@@ -17,7 +17,9 @@ public class CommandTest
 	{
 		logger.info("start");
 		
-	    TelloControlInterface telloControl = new TelloControl(Level.FINER);
+	    TelloControlInterface telloControl = TelloControl.getInstance();
+	    
+	    telloControl.setLogLevel(Level.FINER);
 
 	    try 
 	    {

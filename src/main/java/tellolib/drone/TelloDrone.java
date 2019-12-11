@@ -23,10 +23,27 @@ public class TelloDrone implements TelloDroneInterface
   private TelloConnection 	telloConnection;
   private TelloMode 		telloMode;
 
-  public TelloDrone() 
+  // Private constructor, holder class and getInstance() implement this
+  // class as a singleton.
+	
+  private TelloDrone() 
   {
     telloConnection = TelloConnection.DISCONNECTED;
     telloMode = TelloMode.NORMAL;
+  }
+  
+  private static class SingletonHolder 
+  {
+    public static final TelloDrone INSTANCE = new TelloDrone();
+  }
+	
+  /**
+   * Get the global instance of TelloDrone.
+   * @return Global TelloDrone instance.
+   */
+  public static TelloDrone getInstance()
+  {
+    return SingletonHolder.INSTANCE;
   }
 
   @Override

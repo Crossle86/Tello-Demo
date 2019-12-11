@@ -37,8 +37,11 @@ public class TelloCommunication implements TelloCommunicationInterface
    * Drone UDP ports and timeout.
    */
   private Integer udpPort, udpStatusPort, socketTimeout = 10000;
-
-  public TelloCommunication() throws TelloConnectionException 
+	
+  // Private constructor, holder class and getInstance() implement this
+  // class as a singleton.
+	
+  private TelloCommunication() throws TelloConnectionException 
   {
     try 
     {
@@ -48,6 +51,20 @@ public class TelloCommunication implements TelloCommunicationInterface
     } catch (Exception e) {
       throw new TelloConnectionException(e);
     }
+  }
+  
+  private static class SingletonHolder 
+  {
+    public static final TelloCommunication INSTANCE = new TelloCommunication();
+  }
+	
+  /**
+   * Get the global instance of TelloCommunication.
+   * @return Global TelloCommunication instance.
+   */
+  public static TelloCommunication getInstance()
+  {
+	return SingletonHolder.INSTANCE;
   }
 
   @Override

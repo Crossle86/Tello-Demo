@@ -1,5 +1,7 @@
 package tellolib.control;
 
+import java.util.logging.Level;
+
 import org.opencv.core.Mat;
 
 import tellolib.command.TelloFlip;
@@ -12,6 +14,12 @@ import tellolib.exception.TelloCommandException;
  */
 public interface TelloControlInterface 
 {
+  /**
+   * set logging level. Defaults to OFF.
+   * @param logLevel Desired log level.
+   */
+  void setLogLevel(Level logLevel);
+  
   /**
    * Establishes connection to the Tello Drone.
    */
@@ -249,7 +257,7 @@ public interface TelloControlInterface
   
   /**
    * Start capture of video stream from drone for processing by
-   * this program.
+   * this program. This function may take several seconds to complete.
    * @param liveWindow True to display video feed in a live window.
    */
   void startVideoCapture(boolean liveWindow);

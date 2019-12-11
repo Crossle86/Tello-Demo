@@ -1,4 +1,4 @@
-package tello.camera;
+package tellolib.camera;
 
 import org.opencv.core.Mat;
 
@@ -6,7 +6,7 @@ public interface TelloCameraInterface
 {
   /**
    * Start capture of video stream from drone for processing by
-   * this program.
+   * this program. This function may take several seconds to complete.
    * @param liveWindow True to display video feed in a live window.
    */
   void startVideoCapture(boolean liveWindow);

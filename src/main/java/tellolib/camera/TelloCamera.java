@@ -1,4 +1,4 @@
-package tello.camera;
+package tellolib.camera;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -24,7 +24,9 @@ import org.opencv.imgproc.Imgproc;
 
 import tellolib.drone.TelloDrone;
 
-
+/*
+ * Implementation of TelloCameraInterface.
+ */
 public class TelloCamera implements TelloCameraInterface
 {
 	private final 				Logger logger = Logger.getLogger("Tello");
@@ -41,9 +43,26 @@ public class TelloCamera implements TelloCameraInterface
 	private JFrame				jFrame;
 	private JLabel				jLabel;
 	
-	public TelloCamera()
+	// Private constructor, holder class and getInstance() implement this
+	// class as a singleton.
+	
+	private TelloCamera()
 	{
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+	}
+    
+	private static class SingletonHolder 
+	{
+        public static final TelloCamera INSTANCE = new TelloCamera();
+    }
+	
+	/**
+	 * Get the global instance of TelloCamera.
+	 * @return Global TelloCamera instance.
+	 */
+	public static TelloCamera getInstance()
+	{
+		return SingletonHolder.INSTANCE;
 	}
 	
 	@Override

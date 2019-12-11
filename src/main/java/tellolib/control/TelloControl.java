@@ -1,8 +1,8 @@
 package tellolib.control;
 
+import tellolib.camera.TelloCamera;
 import tellolib.command.BasicTelloCommand;
 import tellolib.command.ComplexTelloCommand;
-import tellolib.command.TelloCommandInterface;
 import tellolib.command.TelloCommandValues;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloCommunication;
@@ -14,8 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opencv.core.Mat;
-
-import tello.camera.TelloCamera;
 
 /**
  * Implements TelloControl interface.
@@ -33,21 +31,40 @@ public class TelloControl implements TelloControlInterface
 	
 	private Thread	statusMonitorThread, keepAliveThread;
 	
-	public TelloControl() 
-	{
-	  this(Level.OFF);
-	}
+	// Private constructor, holder class and getInstance() implement this
+	// class as a singleton.
 	
-	public TelloControl(Level logLevel) 
+	private TelloControl() 
 	{
-	  logger.setLevel(logLevel);
-	  handler.setLevel(logLevel);
+	  logger.setLevel(Level.OFF);
+	  handler.setLevel(Level.OFF);
 	  logger.addHandler(handler);
 	  logger.setUseParentHandlers(false);
 	  
-	  drone = new TelloDrone();
+	  drone = TelloDrone.getInstance();
 	  
-	  telloCommunication = new TelloCommunication();
+	  telloCommunication = TelloCommunication.getInstance();
+	}
+    
+	private static class SingletonHolder 
+	{
+        public static final TelloControl INSTANCE = new TelloControl();
+    }
+	
+	/**
+	 * Get the global instance of TelloControl.
+	 * @return Global TelloControl instance.
+	 */
+	public static TelloControl getInstance()
+	{
+		return SingletonHolder.INSTANCE;
+	}
+
+	@Override
+	public void setLogLevel(Level logLevel)
+	{
+	  logger.setLevel(logLevel);
+	  handler.setLevel(logLevel);
 	}
 	
 	@Override
@@ -479,7 +496,7 @@ public class TelloControl implements TelloControlInterface
 	{
 		if (telloCamera != null) stopVideoCapture();
 		
-		telloCamera = new TelloCamera();
+		telloCamera = TelloCamera.getInstance();
 		
 		telloCamera.startVideoCapture(liveWindow);
 	}

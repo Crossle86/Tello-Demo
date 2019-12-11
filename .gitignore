@@ -110,3 +110,4 @@ venv.bak/
 .classpath
 *.iml
 ffmpeg-4.2.1-win64-static.zip
+Photos/

@@ -489,15 +489,19 @@ public class TelloControl implements TelloControlInterface
 	}
 
 	@Override
-	public void takePicture( String folder )
+	public boolean takePicture( String folder )
 	{
-		if (telloCamera != null) telloCamera.takePicture(folder);
+		if (telloCamera != null) return telloCamera.takePicture(folder);
+		
+		return false;
 	}
 
 	@Override
-	public void startRecording( String folder )
+	public boolean startRecording( String folder )
 	{
-		if (telloCamera != null) telloCamera.startRecording(folder);
+		if (telloCamera != null)  return telloCamera.startRecording(folder);
+		
+		return false;
 	}
 
 	@Override

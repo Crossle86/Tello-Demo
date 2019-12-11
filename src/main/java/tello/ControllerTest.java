@@ -26,6 +26,7 @@ public class ControllerTest
 	public void executeControllerTest()
 	{
 		int		leftX, leftY, rightX, rightY;
+		boolean	recording = false;
 		
 		logger.info("start");
 		
@@ -83,7 +84,17 @@ public class ControllerTest
 		    		}
 		    	}
 		    	
-		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir"));
+		    	if (currState.bJustPressed)
+		    	{
+		    		if (recording)
+		    		{
+		    			telloControl.stopRecording();
+		    			recording = false;
+		    		} else
+		    			recording = telloControl.startRecording(System.getProperty("user.dir") + "\\Photos");
+		    	}
+		    	
+		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir") + "\\Photos");
 		    	
 		    	if (flying)
 		    	{
@@ -112,15 +123,14 @@ public class ControllerTest
 	    }	
 	    catch (Exception e) {
 	    	e.printStackTrace();
-	    } finally 
-	    {
+	    } finally {
 	    	if (telloControl.getConnection() == TelloConnection.CONNECTED)
 	    	{
 	    		try
 	    		{ 
 	    			if (flying) telloControl.land(); 
 	    		}
-	    		catch(Exception e) { e.printStackTrace();}
+	    		catch(Exception e) { e.printStackTrace(); }
 	    	}
 	    }
 	    

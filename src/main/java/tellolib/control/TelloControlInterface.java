@@ -249,9 +249,9 @@ public interface TelloControlInterface
   
   void stopVideoCapture();
   
-  void takePicture(String folder);
+  boolean takePicture(String folder);
   
-  void startRecording(String folder);
+  boolean startRecording(String folder);
   
   void stopRecording();
 }

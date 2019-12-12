@@ -7,59 +7,183 @@ import tellolib.communication.TelloConnection;
  */
 public interface TelloDroneInterface 
 {
-  Integer getBattery();
+	/** 
+	 * Return last recorded battery level
+	 * @return Battery level 0-100%
+	 */
+	Integer getBattery();
 
-  void setBattery(Integer battery);
+	/**
+	 * Record battery level.
+	 * @param battery Battery level to record 0-100%
+	 */
+	void setBattery(Integer battery);
 
-  Integer getSpeed();
+	/**
+	 * Return last set speed value 0-100 cm/s.
+	 * @return
+	 */
+	Integer getSpeed();
 
-  void setSpeed(Integer speed);
+	/**
+	 * Record speed 10-100 cm/s.
+	 * @param speed
+	 */
+	void setSpeed(Integer speed);
 
-  Integer getTime();
+	/**
+	 * Get current flight time.
+	 * @return Flight time in seconds.
+	 */
+	Integer getTime();
 
-  void setTime(Integer time);
+	/**
+	 * Set flight time.
+	 * @param time Flight time in seconds.
+	 */
+	void setTime(Integer time);
 
-  TelloConnection getConnection();
+	/**
+	 * Get connection status.
+	 * @return Connection status enum.
+	 */
+	TelloConnection getConnection();
 
-  void setConnection(TelloConnection telloConnection);
+	/**
+	 * Record connection status.
+	 * @param telloConnection The connection status value.
+	 */
+	void setConnection(TelloConnection telloConnection);
 
-  TelloMode getMode();
+	/**
+	 * Get last recorded operation mode.
+	 * @return The current operation mode.
+	 */
+	TelloMode getMode();
 
-  void setMode(TelloMode telloMode);
+	/**
+	 * Record drone operation mode.
+	 * @param telloMode Current operation mode value.
+	 */
+	void setMode(TelloMode telloMode);
 
-  void setTemp( int parseInt );
+	/**
+	 * Record the current temperature.
+	 * @param temp Temperature in degrees C.
+	 */
+	void setTemp( int temp );
 
-  int getTemp();
+	/**
+	 * Get last recorded temperature.
+	 * @return Temperature in degrees C.
+	 */
+	int getTemp();
 
-  void setBarometer( double parseInt );
+	/**
+	 * Record barometric pressure.
+	 * @param pressure Pressure in millibars.
+	 */
+	void setBarometer( double pressure );
 
-  double getBarometer();
+	/**
+	 * Get the last recorded barometric pressure.
+	 * @return Pressure in millibars.
+	 */
+	double getBarometer();
 
-  void setTof( double parseInt );
+	/**
+	 * Record TOF value.
+	 * @param tof
+	 */
+	void setTof( double tof );
 
-  double getTof();
+	/**
+	 * Get the last recorded TOF value.
+	 * @return TOF value.
+	 */
+  	double getTof();
 
-  void setSN( String trim );
+  	/**
+  	 * Record drone serial number.
+  	 * @param sn Serial number.
+  	 */
+  	void setSN( String sn );
 
-  String getSN();
+	/**
+	 * Get the last recorded serial number.
+	 * @return Serial number.
+	 */
+  	String getSN();
 
-  void setHeight( int parseInt );
+  	/**
+  	 * Record drone height.
+  	 * @param height Height in cm.
+  	 */
+  	void setHeight( int height );
 
-  int getHeight();
+	/**
+	 * Get the last recorded height.
+	 * @return Height in cm..
+	 */
+  	int getHeight();
 
-  void setAttitude( int[] pry );
+  	/**
+  	 * Record drone attitude.
+  	 * @param pry Attitude vectors pitch, roll, yaw in degrees.
+  	 */
+  	void setAttitude( int[] pry );
 
-  int[] getAttitude();
+	/**
+	 * Get the last recorded attitude vectors.
+	 * @return Attitude vectors pitch, roll, yaw in degrees.
+	 */
+  	int[] getAttitude();
 
-  void setAcceleration( double[] xyz );
+  	/**
+  	 * Record drone acceleration vectors.
+  	 * @param xyz Acceleration vectors x,y,z in cm/s/s.
+  	 */
+  	void setAcceleration( double[] xyz );
 
-  double[] getAcceleration();
+	/**
+	 * Get the last recorded acceleration vectors.
+	 * @return Acceleration vectors x,y,z in cm/s/s.
+	 */
+  	double[] getAcceleration();
 
-  void setVelocity( double[] xyz );
+  	/**
+  	 * Record drone velocity vectors.
+  	 * @param xyz Velocity vectors x,y,z in cm/s.
+  	 */
+  	void setVelocity( double[] xyz );
 
-  double[] getVelocity();
+	/**
+	 * Get the last recorded velocity vectors.
+	 * @return Velocity vectors x,y,z in cm/s.
+	 */
+  	double[] getVelocity();
 
-  void setSDK( String trim );
+  	/**
+  	 * Record the drone sdk version.
+  	 * @param version SDK version.
+  	 */
+  	void setSDK( String version );
 
-  String getSDK();
+	/**
+	 * Get the last recorded SDK version.
+	 * @return The SDK version.
+	 */
+  	String getSDK();
+  	
+  	/**
+  	 * Record mission mode state.
+  	 * @param enabled True if mission mode enabled, false if not.
+  	 */
+  	void setMissionMode(boolean enabled);
+  	
+  	/**
+  	 * Get the last recorded mission mode state.
+  	 * @return True if mission mode is enabled, false if not.
+  	 */
+  	boolean isMissionModeEnabled();
 }

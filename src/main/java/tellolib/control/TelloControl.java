@@ -3,6 +3,8 @@ package tellolib.control;
 import tellolib.camera.TelloCamera;
 import tellolib.command.BasicTelloCommand;
 import tellolib.command.ComplexTelloCommand;
+import tellolib.command.MissionDetectionCamera;
+import tellolib.command.TelloCommandInterface;
 import tellolib.command.TelloCommandValues;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloCommunication;
@@ -16,34 +18,35 @@ import java.util.logging.Logger;
 import org.opencv.core.Mat;
 
 /**
- * Implements TelloControl interface.
+ * Implements TelloControl interface. Provides high level wrapper
+ * for library classes used to communicate with and control the drone.
  */
 public class TelloControl implements TelloControlInterface 
 {
 	private final 	Logger logger = Logger.getLogger("Tello");
 	private final 	ConsoleHandler handler = new ConsoleHandler();
 	
-	private TelloDrone drone;
+	private TelloDrone			drone;
 	
-	private TelloCommunication telloCommunication;
+	private TelloCommunication 	telloCommunication;
 	
-	private TelloCamera telloCamera;
+	private TelloCamera			telloCamera;
 	
-	private Thread	statusMonitorThread, keepAliveThread;
+	private Thread				statusMonitorThread, keepAliveThread;
 	
 	// Private constructor, holder class and getInstance() implement this
 	// class as a singleton.
 	
 	private TelloControl() 
 	{
-	  logger.setLevel(Level.OFF);
-	  handler.setLevel(Level.OFF);
-	  logger.addHandler(handler);
-	  logger.setUseParentHandlers(false);
-	  
-	  drone = TelloDrone.getInstance();
-	  
-	  telloCommunication = TelloCommunication.getInstance();
+		logger.setLevel(Level.OFF);
+		handler.setLevel(Level.OFF);
+		logger.addHandler(handler);
+		logger.setUseParentHandlers(false);
+		  
+		drone = TelloDrone.getInstance();
+		  
+		telloCommunication = TelloCommunication.getInstance();
 	}
     
 	private static class SingletonHolder 
@@ -63,118 +66,118 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public void setLogLevel(Level logLevel)
 	{
-	  logger.setLevel(logLevel);
-	  handler.setLevel(logLevel);
+		logger.setLevel(logLevel);
+		handler.setLevel(logLevel);
 	}
 	
 	@Override
 	public void connect() 
 	{
-	  telloCommunication.connect();
-	  drone.setConnection(TelloConnection.CONNECTED);
+		telloCommunication.connect();
+		drone.setConnection(TelloConnection.CONNECTED);
 	}
 	
 	@Override
 	public void disconnect() 
 	{
-	  stopStatusMonitor();
-	  stopKeepAlive();
-	  stopVideoCapture();
-	  
-	  // This will land if we are still flying and throw away the error
-	  // returned by land if we have already landed or never took off.
-	  
-	  try { land(); } catch (Exception e) {}
-	  
-	  telloCommunication.disconnect();
-	  drone.setConnection(TelloConnection.DISCONNECTED);
+		stopStatusMonitor();
+		stopKeepAlive();
+		stopVideoCapture();
+		  
+		// This will land if we are still flying and throw away the error
+		// returned by land if we have already landed or never took off.
+		  
+		try { land(); } catch (Exception e) {}
+		  
+		telloCommunication.disconnect();
+		drone.setConnection(TelloConnection.DISCONNECTED);
 	}
 	  
 	public TelloConnection getConnection() 
 	{
-	 return drone.getConnection();
+		return drone.getConnection();
 	}
 	
 	@Override
 	public void enterCommandMode() 
 	{
-	  BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.COMMAND_MODE);
-	  telloCommunication.executeCommand(command);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.COMMAND_MODE);
+		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void takeOff() 
 	{
-	  BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.TAKE_OFF);
-	  telloCommunication.executeCommand(command);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.TAKE_OFF);
+		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void land() 
 	{
-	  BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.LAND);
-	  telloCommunication.executeCommand(command);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.LAND);
+	  	telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void doFlip(TelloFlip telloFlip) 
 	{
-	  ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.FLIP, TelloFlip.toCommand(telloFlip));
-	  telloCommunication.executeCommand(command);
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.FLIP, TelloFlip.toCommand(telloFlip));
+		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void setSpeed(Integer speed) 
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.SPEED, speed.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.SPEED, speed.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void forward(Integer distance) 
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.FORWARD, distance.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.FORWARD, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void backward(Integer distance)
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.BACK, distance.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.BACK, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void right(Integer distance) 
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.RIGHT, distance.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.RIGHT, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void left(Integer distance) 
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.LEFT, distance.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.LEFT, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void rotateRight(Integer angle) 
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.CW, angle.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.CW, angle.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void rotateLeft(Integer angle)
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.CCW, angle.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.CCW, angle.toString());
 		telloCommunication.executeCommand(command);
 	}
 	  
 	public int getBattery() 
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_BATTERY);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_BATTERY);
 		String battery = telloCommunication.executeReadCommand(command);
 		drone.setBattery(Integer.parseInt(battery.trim()));
 		return drone.getBattery();
@@ -182,7 +185,7 @@ public class TelloControl implements TelloControlInterface
 	  
 	public int getSpeed() 
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_SPEED);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_SPEED);
 		String speed = telloCommunication.executeReadCommand(command);
 		drone.setSpeed((int) Double.parseDouble(speed.trim()));
 		return drone.getSpeed();
@@ -191,21 +194,21 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public void up( Integer distance )
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.UP, distance.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.UP, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public void down( Integer distance )
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.DOWN, distance.toString());
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.DOWN, distance.toString());
 		telloCommunication.executeCommand(command);
 	}
 	
 	@Override
 	public int getTime()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_FLY_TIME);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_FLY_TIME);
 		String time = telloCommunication.executeReadCommand(command);
 		drone.setTime(Integer.parseInt(time.trim().replaceAll("[^\\d.-]", "")));
 		return drone.getTime();
@@ -214,7 +217,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public int getHeight()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_HEIGHT);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_HEIGHT);
 		String height = telloCommunication.executeReadCommand(command);
 		drone.setHeight(Integer.parseInt(height.trim().replaceAll("[^\\d.-]", "")) * 10);
 		return drone.getHeight();
@@ -223,7 +226,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public int getTemp()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_TEMPERATURE);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_TEMPERATURE);
 		String temp = telloCommunication.executeReadCommand(command);
 		drone.setTemp(Integer.parseInt(temp.trim().split("~")[0].replaceAll("[^\\d.-]", "")));
 		return drone.getTemp();
@@ -232,7 +235,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public double getBarometer()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_BAROMETER);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_BAROMETER);
 		String barometer = telloCommunication.executeReadCommand(command);
 		drone.setBarometer(Double.parseDouble(barometer.trim()));
 		return drone.getBarometer();
@@ -241,7 +244,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public int[] getAttitude()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_ATTITUDE);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_ATTITUDE);
 		String attitude = telloCommunication.executeReadCommand(command);
 		
 		String spry[] = attitude.split(";");
@@ -262,7 +265,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public double[] getAcceleration()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_ACCELERATION);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_ACCELERATION);
 		String acceleration = telloCommunication.executeReadCommand(command);
 		
 		String sxyz[] = acceleration.split(";");
@@ -282,7 +285,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public double getTof()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.CURRENT_TOF);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.CURRENT_TOF);
 		String tof = telloCommunication.executeReadCommand(command);
 		drone.setTof(Double.parseDouble(tof.trim().replaceAll("[^\\d.-]", "")) / 10);
 		return drone.getTof();
@@ -291,7 +294,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public String getSN()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.SN);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.SN);
 		String sn = telloCommunication.executeReadCommand(command);
 		drone.setSN(sn.trim());
 		return drone.getSN();
@@ -300,7 +303,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public void goTo( Integer x, Integer y, Integer z, Integer speed )
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.GO, 
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.GO, 
 				x.toString() + " " + y.toString() + " " + z.toString() + " " + speed.toString());
 		telloCommunication.executeCommand(command);
 	}
@@ -308,7 +311,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public void flyRC( Integer lr, Integer fb, Integer ud, Integer yaw )
 	{
-		ComplexTelloCommand command = new ComplexTelloCommand(TelloCommandValues.RC, 
+		TelloCommandInterface command = new ComplexTelloCommand(TelloCommandValues.RC, 
 				lr.toString() + " " + fb.toString() + " " + ud.toString() + " " + yaw.toString());
 		telloCommunication.executeCommandNoWait(command);
 	}
@@ -316,7 +319,7 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public String getSDK()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.SDK);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.SDK);
 		String sdk = telloCommunication.executeReadCommand(command);
 		drone.setSDK(sdk.trim());
 		return drone.getSDK();
@@ -325,28 +328,28 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public void stop()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.STOP);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.STOP);
 		telloCommunication.executeCommand(command);
 	}
 
 	@Override
 	public void emergency()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.EMERGENCY);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.EMERGENCY);
 		telloCommunication.executeCommand(command);
 	}
 
 	@Override
 	public void streamOn()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.ENABLE_VIDEO_STREAM);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.ENABLE_VIDEO_STREAM);
 		telloCommunication.executeCommand(command);
 	}
 
 	@Override
 	public void streamOff()
 	{
-		BasicTelloCommand command = new BasicTelloCommand(TelloCommandValues.DISABLE_VIDEO_STREAM);
+		TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.DISABLE_VIDEO_STREAM);
 		telloCommunication.executeCommand(command);
 	}
 
@@ -545,5 +548,32 @@ public class TelloControl implements TelloControlInterface
 			return telloCamera.getImage();
 		else
 			return null;
+	}
+
+	@Override
+	public void setMissionMode( boolean enabled, MissionDetectionCamera camera )
+	{
+		if (enabled)
+		{
+			TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.MOFF);
+			telloCommunication.executeCommand(command);
+
+			command = new ComplexTelloCommand(TelloCommandValues.MDIRECTION, camera.toString());
+			telloCommunication.executeCommand(command);
+
+			drone.setMissionMode(true);
+		}
+		else
+		{
+			TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.MOFF);
+			telloCommunication.executeCommand(command);
+			drone.setMissionMode(false);
+		}
+	}
+
+	@Override
+	public boolean isMissionModeEnabled()
+	{
+		return drone.isMissionModeEnabled();
 	}
 }

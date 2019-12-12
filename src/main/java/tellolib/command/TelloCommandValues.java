@@ -2,6 +2,7 @@ package tellolib.command;
 
 /**
  * Commands for the DJI Tello drone. Source: https://github.com/grofattila/dji-tello/blob/experimental/Tello_SDK.pdf
+ * and: https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello SDK 2.0 User Guide.pdf
  */
 public class TelloCommandValues 
 {
@@ -34,7 +35,6 @@ public class TelloCommandValues
    * Stops motors immediately.
    */
   public static final String EMERGENCY = "emergency";
-
 
   /**
    * Fly upward xx (xx = 20 - 500 cm).
@@ -84,17 +84,39 @@ public class TelloCommandValues
 
 
   /**
-   * Fly to x y z at speed (cm/s). go x y z speed x = -500-500 y = -500-500 z =
-   * -500-500 speed = 10-100 Note: x, y, and z values can't be set between -20-20
-   * simultaneously.
+   * Fly to x y z at speed (cm/s). go x y z speed.
+   * x = -500-500 y = -500-500 z = -500-500 speed = 10-100. Note: x, y, and z values
+   * can't be set between -20-20 simultaneously. go x y z speed.
+   * 
+   * Also 
+   * Fly to x y z of the mission pad at speed (cm/s). go x y z speed mid. 
+   * x = -500-500 y = -500-500 z = -500-500 speed = 10-100. Note: x, y, and z values 
+   * can't be set between -20-20 simultaneously. mid = m1-m8.
    */
   public static final String GO = "go";
+  
+  /**
+   * Fly to x y z of mission pad 1 and recognize coordinates 0 0 z of mission pad 2 then rotate to 
+   * the yaw value. jump x y z speed yaw mid1 mid2.
+   * x = -500-500 y = -500-500 z = -500-500 speed = 10-100. Note: x, y, and z values can't be set 
+   * between -20-20 simultaneously. mid1/2 = m1-m8.
+   * 
+   */
+  public static final String JUMP = "jump";
 
   /**
-   * Fly at a curve according to the two given coordinates at speed (cm/s). If the arc radius is
-   * not within a range of 0.5-10 meters, it will respond with an error. x1, x2 = -500-500 y1,
-   * y2 = -500-500 z1, z2 = -500-500 speed = 10-60 Note: x, y, and z values can't be
-   * set between -20-20 simultaneously.
+   * Fly at a curve according to the two given coordinates at speed (cm/s). 
+   * curve x1 y1 z1 x2 y2 z2 speed. 
+   * If the arc radius is not within a range of 0.5-10 meters, it will respond with an error. 
+   * x1, x2 = -500-500 y1, y2 = -500-500 z1, z2 = -500-500 speed = 10-60. Note: x, y, and z values 
+   * can't be set between -20-20 simultaneously.
+   * 
+   * Also
+   * Fly at a curve according to the two given coordinates of the mission pad at speed (cm/s). 
+   * curve x1 y1 z1 x2 y2 z2 speed mid.
+   * If the arc radius is not within a range of 0.5-10 meters, it will respond with an error. 
+   * x1, x2 = -500-500 y1, y2 = -500-500 z1, z2 = -500-500 speed = 10-60. Note: x, y, and z 
+   * values can't be set between -20-20 simultaneously. mid=m1-m8
    */
   public static final String CURVE = "curve";
 
@@ -168,4 +190,19 @@ public class TelloCommandValues
    * All values in the range -100 to +100 representing speed(?).
    */
   public static final String RC = "rc";
+  
+  /**
+   * Enable mission mode.
+   */
+  public static final String MON = "mon";
+  
+  /**
+   * Disable misson mode.
+   */
+  public static final String MOFF = "moff";
+  
+  /**
+   * Select mission mode camera(s).
+   */
+  public static final String MDIRECTION = "mdirection";
 }

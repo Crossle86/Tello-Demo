@@ -3,7 +3,9 @@ package tellolib.drone;
 import tellolib.communication.TelloConnection;
 
 /**
- * Implements the Tello Drone Interface.
+ * Implements the Tello Drone Interface. TelloDrone class holds
+ * information about the drone, set by retrieving information from
+ * the drone or other sources.
  */
 public class TelloDrone implements TelloDroneInterface
 {
@@ -22,6 +24,7 @@ public class TelloDrone implements TelloDroneInterface
   private String			sn, sdk;
   private TelloConnection 	telloConnection;
   private TelloMode 		telloMode;
+  private boolean			missionModeEnabled;
 
   // Private constructor, holder class and getInstance() implement this
   // class as a singleton.
@@ -212,5 +215,17 @@ public class TelloDrone implements TelloDroneInterface
   public double[] getVelocity()
   {
 	return velocity;
+  }
+
+  @Override
+  public void setMissionMode( boolean enabled )
+  {
+	missionModeEnabled = enabled;
+  }
+
+  @Override
+  public boolean isMissionModeEnabled()
+  {
+	return missionModeEnabled;
   }
 }

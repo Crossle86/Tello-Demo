@@ -4,13 +4,14 @@ import java.util.logging.Level;
 
 import org.opencv.core.Mat;
 
+import tellolib.command.MissionDetectionCamera;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.drone.TelloDroneInterface;
 import tellolib.exception.TelloCommandException;
 
 /**
- * Higher level interface to Tello Drone.
+ * Higher level interface to Tello Drone library.
  */
 public interface TelloControlInterface 
 {
@@ -299,4 +300,17 @@ public interface TelloControlInterface
    * @return The current image.
    */
   Mat getImage();
+
+  /**
+   * Set mission mode state.
+   * @param enabled True to enable, false to disable.
+   * @param camera Select which camera for detection when enabled.
+  */
+  void setMissionMode(boolean enabled, MissionDetectionCamera camera);
+  
+  /**
+   * Returns mission mode state.
+   * @return True if enabled, false if disabled.
+   */
+  boolean isMissionModeEnabled();
 }

@@ -128,13 +128,14 @@ public interface TelloDroneInterface
   	int getHeight();
 
   	/**
-  	 * Record drone attitude.
+  	 * Record drone attitude. Also updates drone heading.
   	 * @param pry Attitude vectors pitch, roll, yaw in degrees.
   	 */
   	void setAttitude( int[] pry );
 
 	/**
 	 * Get the last recorded attitude vectors.
+	 * Only valid when status monitoring enabled.
 	 * @return Attitude vectors pitch, roll, yaw in degrees.
 	 */
   	int[] getAttitude();
@@ -147,18 +148,21 @@ public interface TelloDroneInterface
 
 	/**
 	 * Get the last recorded acceleration vectors.
+	 * Only valid when status monitoring enabled.
 	 * @return Acceleration vectors x,y,z in cm/s/s.
 	 */
   	double[] getAcceleration();
 
   	/**
   	 * Record drone velocity vectors.
+	 * Only valid when status monitoring enabled.
   	 * @param xyz Velocity vectors x,y,z in cm/s.
   	 */
   	void setVelocity( double[] xyz );
 
 	/**
 	 * Get the last recorded velocity vectors.
+	 * Only valid when status monitoring enabled.
 	 * @return Velocity vectors x,y,z in cm/s.
 	 */
   	double[] getVelocity();
@@ -176,7 +180,9 @@ public interface TelloDroneInterface
   	String getSDK();
   	
   	/**
-  	 * Record mission mode state.
+  	 * Record mission mode state. In mission mode, status monitoring
+  	 * will record information about any mission pad detected by the
+  	 * selected camera(s).
   	 * @param enabled True if mission mode enabled, false if not.
   	 */
   	void setMissionMode(boolean enabled);
@@ -186,4 +192,87 @@ public interface TelloDroneInterface
   	 * @return True if mission mode is enabled, false if not.
   	 */
   	boolean isMissionModeEnabled();
+  	
+  	/**
+  	 * Record last detected mission pad id.
+  	 * @param id Mission pad id 1-8 or negative if no pad detected.
+  	 */
+  	void setMissionPadId(int id);
+
+  	/**
+  	 * Get last recorded mission pad id detected.
+	 * Only valid when status monitoring enabled.
+  	 * Only valid when in mission mode and a mission pad is detected.
+  	 * @return Mission pad id 1-8 or negative if no pad detected.
+  	 */
+  	int getMissionPadId();
+
+  	/**
+  	 * Record drone mission pad x y z.
+  	 * @param xyz Mission pad x y z values.
+  	 */
+  	void setMissionPadxyz( int[] xyz );
+
+  	/**
+	 * Get last drone mission pad x y z values.
+	 * Only valid when status monitoring enabled.
+  	 * Only valid when mission pad detected.
+	 * @return Mission pad pitch, roll, yaw values.
+	 */
+  	int[] getMissionPadxyz();
+
+  	/**
+  	 * Record drone mission pad pitch roll yaw.
+  	 * @param pry Mission pad pitch, roll, yaw values.
+  	 */
+  	void setMissionPadpry( int[] pry );
+
+  	/**
+  	 * Get last drone mission pad pitch roll yaw.
+	 * Only valid when status monitoring enabled.
+  	 * Only valid when mission pad detected.
+  	 * @return Mission pad pitch, roll, yaw values.
+  	 */
+  	int[] getMissionPadpry();
+  	
+  	/**
+  	 * Return last recorded raw yaw value. raw yaw starts at zero when
+  	 * drone turned on with whatever direction drone is pointing
+  	 * as zero. This direction is maintained as zero as long as
+  	 * power stays on. Raw yaw is yaw relative to that zero point.
+	 * Only valid when status monitoring enabled.
+  	 * @return Yaw value in degrees. Right of zero is 1 to 179, left of zero
+  	 * is -1 to -179 and if you pass 179 the sign reverses.
+  	 */
+  	int getRawYaw();
+  	
+  	/**
+  	 * Return yaw from direction drone was pointing at power on or
+  	 * at last call to resetYawZero().
+	 * Only valid when status monitoring enabled.
+  	 * @return Yaw value in degrees. Right of zero is 1 to 179, left of zero
+  	 * is -1 to -179.
+  	 */
+  	int getYaw();
+  	
+  	/**
+  	 * Get drone heading based on last recorded yaw value.
+  	 * Resets to heading 0 matching the direction the drone 
+  	 * is pointing when the program is restarted.
+	 * Only valid when status monitoring enabled.
+  	 * @return Heading 0-359 in degrees.
+  	 */
+  	public int getHeading();
+  	
+  	/**
+  	 * Reset drone heading so 0 matches the direction the
+  	 * drone is current pointing.
+  	 */
+  	public void resetHeadingZero();
+
+  	/**
+  	 * Reset yaw tracking to current direction as zero.
+	 * Only valid when status monitoring enabled.
+  	 */
+  	public void resetYawZero();
 }

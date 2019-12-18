@@ -6,10 +6,12 @@ import java.util.logging.Logger;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
+import tellolib.camera.MissionDetectionCamera;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.control.TelloControl;
 import tellolib.control.TelloControlInterface;
+import tellolib.drone.TelloDrone;
 
 public class ControllerTest
 {
@@ -32,7 +34,7 @@ public class ControllerTest
 		
 	    TelloControlInterface telloControl =TelloControl.getInstance();
 	    
-	    telloControl.setLogLevel(Level.FINE);
+	    telloControl.setLogLevel(Level.FINER);
 
 	    try 
 	    {
@@ -47,6 +49,8 @@ public class ControllerTest
 		    telloControl.startKeepAlive();
 		    
 		    telloControl.startVideoCapture(true);
+		    
+		    telloControl.setMissionMode(true, MissionDetectionCamera.downward);
 		    
 		    while(true) 
 		    {
@@ -99,7 +103,15 @@ public class ControllerTest
 		    	
 		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir") + "\\Photos");
 		    	
-		    	if (currState.xJustPressed) logger.info("speed=" + telloControl.getSpeed());
+		    	if (currState.xJustPressed) telloControl.rotateRight(270);
+
+		    	if (currState.yJustPressed) 
+		    	{
+		    		telloControl.resetHeadingZero();
+		    		telloControl.resetYawZero();
+		    	}
+	    		
+	    		logger.info("heading=" + telloControl.getHeading() + ";yaw=" + telloControl.getYaw());
 		    	
 		    	if (flying)
 		    	{
@@ -110,8 +122,6 @@ public class ControllerTest
 		    		leftY = deadZone((int) (currState.leftStickY * 100.0), 3);
 		    		rightX = deadZone((int) (currState.rightStickX * 100), 3);
 		    		rightY = deadZone((int) (currState.rightStickY * 100), 3);
-		    		
-		    		//logger.info(rightX + " " + rightY + " " + leftY + " " + leftX);
 		    		
 	    			telloControl.flyRC(rightX, rightY, leftY, leftX);
 		    		
@@ -140,6 +150,11 @@ public class ControllerTest
 	    }
 	    
     	telloControl.disconnect();
+    	
+    	logger.info("mpid=" + telloControl.getMissionPadId() + ";mxyz=" + telloControl.getMissionPadxyz()[0] +
+    			"," + telloControl.getMissionPadxyz()[1] + "," + telloControl.getMissionPadxyz()[2] +
+    			";mpry=" + telloControl.getMissionPadpry()[0] + "," + telloControl.getMissionPadpry()[1] + "," +
+    			telloControl.getMissionPadpry()[2]);
 	    
 	    logger.info("end");
 

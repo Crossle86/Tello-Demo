@@ -12,7 +12,7 @@ public class TelloCommandValues
   public static final String COMMAND_MODE = "command";
 
   /**
-   * Auto takeoff.
+   * Auto take off.
    */
   public static final String TAKE_OFF = "takeoff";
 

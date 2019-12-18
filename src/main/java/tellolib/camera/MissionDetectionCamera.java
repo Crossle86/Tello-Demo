@@ -1,4 +1,4 @@
-package tellolib.command;
+package tellolib.camera;
 
 /**
  * Enum for mission detection camera selection.

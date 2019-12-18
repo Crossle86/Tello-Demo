@@ -4,7 +4,7 @@ import java.util.logging.Level;
 
 import org.opencv.core.Mat;
 
-import tellolib.command.MissionDetectionCamera;
+import tellolib.camera.MissionDetectionCamera;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.drone.TelloDroneInterface;
@@ -170,12 +170,14 @@ public interface TelloControlInterface
   
   /**
    * Get IMU attitude data.
+   * Only valid when status monitoring enabled.
    * @return Pitch, roll, yaw.
    */
   int[] getAttitude();
   
   /**
    * Get IMU acceleration.
+   * Only valid when status monitoring enabled.
    * @return Angular acceleration x, y, z (.001 g).
    */
   double[] getAcceleration();
@@ -302,10 +304,12 @@ public interface TelloControlInterface
   Mat getImage();
 
   /**
-   * Set mission mode state.
+   * Set mission mode state. In mission mode, status monitoring
+   * will record information about any mission pad detected by the
+   * selected camera(s).
    * @param enabled True to enable, false to disable.
-   * @param camera Select which camera for detection when enabled.
-  */
+   * @param camera Select which camera(s) used for detection when enabled.
+   */
   void setMissionMode(boolean enabled, MissionDetectionCamera camera);
   
   /**
@@ -313,4 +317,69 @@ public interface TelloControlInterface
    * @return True if enabled, false if disabled.
    */
   boolean isMissionModeEnabled();
+
+	/**
+	 * Get last recorded mission pad id detected.
+	 * Only valid when status monitoring enabled.
+	 * Only valid when in mission mode and a mission pad is detected.
+	 * @return Mission pad id 1-8 or negative if no pad detected.
+	 */
+	int getMissionPadId();
+
+  	/**
+	 * Get last drone mission pad x y z values.
+	 * Only valid when status monitoring enabled.
+  	 * Only valid when mission pad detected.
+	 * @return Mission pad pitch, roll, yaw values.
+	 */
+  	int[] getMissionPadxyz();
+
+  	/**
+  	 * Get last drone mission pad pitch roll yaw.
+	 * Only valid when status monitoring enabled.
+  	 * Only valid when mission pad detected.
+  	 * @return Mission pad pitch, roll, yaw values.
+  	 */
+  	int[] getMissionPadpry();
+ 	
+  	/**
+  	 * Return last recorded raw yaw value. Raw yaw starts at zero when
+  	 * drone turned on with whatever direction drone is pointing
+  	 * as zero. This direction is maintained as zero as long as
+  	 * power stays on. Raw yaw is yaw relative to that zero point.
+ 	 * Only valid when status monitoring enabled.
+ 	 * @return Yaw value. Right of zero is 1 to 179, left of zero
+  	 * is -1 to -179 and if you pass 179 the sign reverses.
+  	 */
+  	int getRawYaw();
+  	
+  	/**
+  	 * Return yaw from direction drone was pointing at power on or
+  	 * at last call to resetYawZero().
+	 * Only valid when status monitoring enabled.
+  	 * @return Yaw value in degrees. Right of zero is 1 to 179, left of zero
+  	 * is -1 to -179.
+  	 */
+  	int getYaw();
+  	
+  	/**
+  	 * Get drone heading based on last recorded yaw value.
+  	 * Resets to heading 0 matching the direction the drone 
+  	 * is pointing when the program is restarted.
+	 * Only valid when status monitoring enabled.
+  	 * @return Heading 0-359.
+  	 */
+  	public int getHeading();
+  	
+  	/**
+  	 * Reset drone heading so 0 matches the direction the
+  	 * drone is current pointing.
+  	 */
+  	public void resetHeadingZero();
+
+  	/**
+  	 * Reset yaw tracking to current direction as zero.
+	 * Only valid when status monitoring enabled.
+  	 */
+  	public void resetYawZero();
 }

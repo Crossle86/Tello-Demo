@@ -1,9 +1,9 @@
 package tellolib.control;
 
+import tellolib.camera.MissionDetectionCamera;
 import tellolib.camera.TelloCamera;
 import tellolib.command.BasicTelloCommand;
 import tellolib.command.ComplexTelloCommand;
-import tellolib.command.MissionDetectionCamera;
 import tellolib.command.TelloCommandInterface;
 import tellolib.command.TelloCommandValues;
 import tellolib.command.TelloFlip;
@@ -396,12 +396,12 @@ public class TelloControl implements TelloControlInterface
 	    			logger.finer(logData);
 	    			
 	    			String[] keyValuePairs = logData.split(";"); 
+
+	    			int[] attpry = new int[3], mpxyz = new int[3], mppry = new int[3];
+    				double[] accelxyz = new double[3], veloxyz = new double[3];
 	    			
 	    			for(String pair : keyValuePairs)                        // iterate over the pairs.
 	    			{
-	    				int[] attpry = new int[3];
-	    				double[] accelxyz = new double[3], veloxyz = new double[3];
-	    				
 	    			    String[] entry = pair.split(":");                   // split the pairs to get key and value. 
 	    			    
 	    			    switch (entry[0])
@@ -421,14 +421,30 @@ public class TelloControl implements TelloControlInterface
 	    			    	case "vgx": veloxyz[0] = Double.parseDouble(entry[1].trim()); break;
 	    			    	case "vgy": veloxyz[1] = Double.parseDouble(entry[1].trim()); break;
 	    			    	case "vgz": veloxyz[2] = Double.parseDouble(entry[1].trim()); break;
+
+	    			    	case "mid": drone.setMissionPadId(Integer.parseInt(entry[1].trim())); break;
+	    			    	case "x": mpxyz[0] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "y": mpxyz[1] = Integer.parseInt(entry[1].trim()); break;
+	    			    	case "z": mpxyz[2] = Integer.parseInt(entry[1].trim()); break;
+	    			    	
+	    			    	case "mpry":
+	    			    		String[] entry2 = entry[1].split(",");
+	    			    		mppry[0] = Integer.parseInt(entry2[0].trim());
+	    			    		mppry[1] = Integer.parseInt(entry2[1].trim());
+	    			    		mppry[2] = Integer.parseInt(entry2[2].trim());
+	    			    		break;
 	    			    }
-	    			    
-	    			    drone.setAttitude(attpry);
-	    			    
-	    			    drone.setAcceleration(accelxyz);
-	    			    
-	    			    drone.setVelocity(veloxyz);
 	    			}
+    			    
+    			    drone.setAttitude(attpry);
+    			    
+    			    drone.setAcceleration(accelxyz);
+    			    
+    			    drone.setVelocity(veloxyz);
+    			    
+    			    drone.setMissionPadxyz(mpxyz);
+    			    
+    			    drone.setMissionPadpry(mppry);
 	    		}
 	    	}
 	    	catch (Exception e) { logger.warning("status monitor failed: " + e.getMessage()); }
@@ -437,7 +453,7 @@ public class TelloControl implements TelloControlInterface
 	    	statusMonitorThread =  null;
 	    }
 	}
-
+	
 	@Override
 	public void startKeepAlive()
 	{
@@ -555,10 +571,10 @@ public class TelloControl implements TelloControlInterface
 	{
 		if (enabled)
 		{
-			TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.MOFF);
+			TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.MON);
 			telloCommunication.executeCommand(command);
 
-			command = new ComplexTelloCommand(TelloCommandValues.MDIRECTION, camera.toString());
+			command = new ComplexTelloCommand(TelloCommandValues.MDIRECTION, MissionDetectionCamera.toCommand(camera));
 			telloCommunication.executeCommand(command);
 
 			drone.setMissionMode(true);
@@ -567,6 +583,7 @@ public class TelloControl implements TelloControlInterface
 		{
 			TelloCommandInterface command = new BasicTelloCommand(TelloCommandValues.MOFF);
 			telloCommunication.executeCommand(command);
+			
 			drone.setMissionMode(false);
 		}
 	}
@@ -575,5 +592,53 @@ public class TelloControl implements TelloControlInterface
 	public boolean isMissionModeEnabled()
 	{
 		return drone.isMissionModeEnabled();
+	}
+
+	@Override
+	public int getMissionPadId()
+	{
+		return drone.getMissionPadId();
+	}
+
+	@Override
+	public int[] getMissionPadxyz()
+	{
+		return drone.getMissionPadxyz();
+	}
+
+	@Override
+	public int[] getMissionPadpry()
+	{
+		return drone.getMissionPadpry();
+	}
+
+	@Override
+	public int getRawYaw()
+	{
+		return drone.getRawYaw();
+	}
+
+	@Override
+	public int getHeading()
+	{
+		return drone.getHeading();
+	}
+
+	@Override
+	public void resetHeadingZero()
+	{
+		drone.resetHeadingZero();
+	}
+
+	@Override
+	public int getYaw()
+	{
+		return drone.getYaw();
+	}
+
+	@Override
+	public void resetYawZero()
+	{
+		drone.resetYawZero();
 	}
 }

@@ -20,6 +20,8 @@ public class TelloDrone implements TelloDroneInterface
   public static final Integer UDP_PORT = 8889, UDP_STATUS_PORT = 8890, UDP_VIDEO_PORT = 11111;
   
   private int				battery, height, speed, time, temp, attitude[];
+  private int				missionPadId, missionPadxyz[], missionPadpry[];
+  private int				heading, headingZeroOffset = 9999, yawZeroOffset = 9999;
   private double			barometer, tof, acceleration[], velocity[];
   private String			sn, sdk;
   private TelloConnection 	telloConnection;
@@ -172,7 +174,9 @@ public class TelloDrone implements TelloDroneInterface
   @Override
   public void setAttitude( int[] pry )
   {
-	attitude  = pry;
+	attitude = pry;
+	
+	updateHeading();
   }
 
   @Override
@@ -227,5 +231,89 @@ public class TelloDrone implements TelloDroneInterface
   public boolean isMissionModeEnabled()
   {
 	return missionModeEnabled;
+  }
+
+  @Override
+  public void setMissionPadId( int id )
+  {
+	missionPadId = id;
+  }
+
+  @Override
+  public int getMissionPadId()
+  {
+	return missionPadId;
+  }
+
+  @Override
+  public void setMissionPadxyz( int[] xyz )
+  {
+    missionPadxyz = xyz;
+  }
+
+  @Override
+  public int[] getMissionPadxyz()
+  {
+	return missionPadxyz;
+  }
+
+  @Override
+  public void setMissionPadpry( int[] pry )
+  {
+    missionPadpry = pry;	
+  }
+
+  @Override
+  public int[] getMissionPadpry()
+  {
+	return missionPadpry;
+  }
+
+  @Override
+  public int getRawYaw()
+  {
+	return getAttitude()[2];
+  }
+  
+  private void updateHeading()
+  {
+	  int yaw = getRawYaw();
+	  
+	  if (headingZeroOffset == 9999) 
+	  {
+		  resetHeadingZero();
+		  resetYawZero();
+	  }
+
+	  yaw -= headingZeroOffset;
+	  
+	  if (yaw < 0)
+		  heading = 360 + yaw;
+	  else
+		  heading = yaw;
+  }
+  
+  @Override
+  public int getHeading()
+  {
+	  return heading;
+  }
+  
+  @Override
+  public void resetHeadingZero()
+  {
+	  headingZeroOffset = getRawYaw();
+  }
+
+  @Override
+  public int getYaw()
+  {
+	  return getRawYaw() - yawZeroOffset;
+  }
+
+  @Override
+  public void resetYawZero()
+  {
+	  yawZeroOffset = getRawYaw();
   }
 }

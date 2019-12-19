@@ -34,7 +34,7 @@ public class ControllerTest
 		
 	    TelloControlInterface telloControl =TelloControl.getInstance();
 	    
-	    telloControl.setLogLevel(Level.FINER);
+	    telloControl.setLogLevel(Level.FINE);
 
 	    try 
 	    {

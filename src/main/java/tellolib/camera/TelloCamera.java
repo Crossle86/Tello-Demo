@@ -48,7 +48,7 @@ public class TelloCamera implements TelloCameraInterface
 	
 	private TelloCamera()
 	{
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
 	}
     
 	private static class SingletonHolder 

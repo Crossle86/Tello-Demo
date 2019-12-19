@@ -1,5 +1,7 @@
 package tellolib.drone;
 
+import org.opencv.core.Core;
+
 import tellolib.communication.TelloConnection;
 
 /**
@@ -33,6 +35,8 @@ public class TelloDrone implements TelloDroneInterface
 	
   private TelloDrone() 
   {
+	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+	
     telloConnection = TelloConnection.DISCONNECTED;
     telloMode = TelloMode.NORMAL;
   }

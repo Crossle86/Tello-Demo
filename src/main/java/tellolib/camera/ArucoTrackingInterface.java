@@ -1,6 +1,7 @@
 package tellolib.camera;
 
 import org.opencv.core.Mat;
+import org.opencv.aruco.*;
 
 public interface ArucoTrackingInterface
 {

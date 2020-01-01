@@ -2,17 +2,18 @@ package tellolib.camera;
 
 import java.util.logging.Logger;
 
+import org.opencv.aruco.Aruco;
 import org.opencv.core.Mat;
 
 public class ArucoTracking implements ArucoTrackingInterface
 {
 	private final 		Logger logger = Logger.getLogger("Tello");
 
-	//private Aruco		aruco;
+	private Aruco		aruco;
 
 	private ArucoTracking()
 	{
-		//aruco = new Aruco();
+		aruco = new Aruco();
 	}
     
 	private static class SingletonHolder 

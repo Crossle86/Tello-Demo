@@ -106,8 +106,8 @@ venv.bak/
 # idea 
 .idea/
 .settings/
-.project
-.classpath
+#.project
+#.classpath
 *.iml
 
 Photos/

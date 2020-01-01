@@ -32,7 +32,7 @@ public class ControllerTest
 		
 		logger.info("start");
 		
-	    TelloControlInterface telloControl =TelloControl.getInstance();
+	    TelloControlInterface telloControl = TelloControl.getInstance();
 	    
 	    telloControl.setLogLevel(Level.FINE);
 
@@ -111,7 +111,7 @@ public class ControllerTest
 		    		telloControl.resetYawZero();
 		    	}
 	    		
-	    		logger.info("heading=" + telloControl.getHeading() + ";yaw=" + telloControl.getYaw());
+	    		//logger.info("heading=" + telloControl.getHeading() + ";yaw=" + telloControl.getYaw());
 		    	
 		    	if (flying)
 		    	{
@@ -151,10 +151,10 @@ public class ControllerTest
 	    
     	telloControl.disconnect();
     	
-    	logger.info("mpid=" + telloControl.getMissionPadId() + ";mxyz=" + telloControl.getMissionPadxyz()[0] +
-    			"," + telloControl.getMissionPadxyz()[1] + "," + telloControl.getMissionPadxyz()[2] +
-    			";mpry=" + telloControl.getMissionPadpry()[0] + "," + telloControl.getMissionPadpry()[1] + "," +
-    			telloControl.getMissionPadpry()[2]);
+//    	logger.info("mpid=" + telloControl.getMissionPadId() + ";mxyz=" + telloControl.getMissionPadxyz()[0] +
+//    			"," + telloControl.getMissionPadxyz()[1] + "," + telloControl.getMissionPadxyz()[2] +
+//    			";mpry=" + telloControl.getMissionPadpry()[0] + "," + telloControl.getMissionPadpry()[1] + "," +
+//    			telloControl.getMissionPadpry()[2]);
 	    
 	    logger.info("end");
 

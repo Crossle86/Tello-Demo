@@ -382,4 +382,28 @@ public interface TelloControlInterface
 	 * Only valid when status monitoring enabled.
   	 */
   	public void resetYawZero();
+  	
+	/**
+	 * Perform Aruco marker detection on the current camera image.
+	 * Only valid if video feed is in progress.
+	 * @return True if marker(s) detected, false if not.
+	 */
+  	public boolean detectArucoMarkers();
+  	
+	/**
+	 * Get the number of markers detected on last call to 
+	 * detectArucoMarkers().
+	 * Only valid if video feed is in progress.
+	 * @return Number of detected markers.
+	 */
+  	public int getArucoMarkerCount();
+  	
+	/**
+	 * Get the marker id of the selected marker detected by the
+	 * last call to detectArucoMarkers().
+	 * Only valid if video feed is in progress.
+	 * @param index Marker to select indexed from 0.
+	 * @return Marker id number or -1 if no markers or index out of range.
+	 */
+  	public int getArucoMarkerId(int index);
 }

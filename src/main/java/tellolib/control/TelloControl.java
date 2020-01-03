@@ -1,5 +1,6 @@
 package tellolib.control;
 
+import tellolib.camera.ArucoTracking;
 import tellolib.camera.MissionDetectionCamera;
 import tellolib.camera.TelloCamera;
 import tellolib.command.BasicTelloCommand;
@@ -640,5 +641,15 @@ public class TelloControl implements TelloControlInterface
 	public void resetYawZero()
 	{
 		drone.resetYawZero();
+	}
+
+	@Override
+	public boolean detectArucoMarkers()
+	{
+		ArucoTracking at = ArucoTracking.getInstance();
+
+		Mat image = telloCamera.getImage();
+		
+		return at.detectMarkers(image);
 	}
 }

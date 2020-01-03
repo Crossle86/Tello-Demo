@@ -11,7 +11,6 @@ import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.control.TelloControl;
 import tellolib.control.TelloControlInterface;
-import tellolib.drone.TelloDrone;
 
 public class ControllerTest
 {
@@ -103,7 +102,17 @@ public class ControllerTest
 		    	
 		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir") + "\\Photos");
 		    	
-		    	if (currState.xJustPressed) telloControl.rotateRight(270);
+		    	if (currState.xJustPressed) 
+		    	{
+		    		boolean found = telloControl.detectArucoMarkers();
+		    		
+		    		logger.info("markers found=" + found);
+		    		
+		    		if (found)
+		    		{
+		    			int markers = 0;
+		    		}
+		    	}
 
 		    	if (currState.yJustPressed) 
 		    	{

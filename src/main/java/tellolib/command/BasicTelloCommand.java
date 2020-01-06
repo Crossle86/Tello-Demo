@@ -2,6 +2,9 @@ package tellolib.command;
 
 import java.util.Objects;
 
+/**
+ * Holds a basic (without parameters) command to be sent to drone.
+ */
 public class BasicTelloCommand extends AbstractTelloCommand 
 {
   public BasicTelloCommand(String command) 

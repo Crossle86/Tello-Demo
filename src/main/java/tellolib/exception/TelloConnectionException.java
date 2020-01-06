@@ -1,5 +1,8 @@
 package tellolib.exception;
 
+/**
+ * Exception thrown for communication errors.
+ */
 public class TelloConnectionException extends RuntimeException 
 {
 	private static final long serialVersionUID = 1L;

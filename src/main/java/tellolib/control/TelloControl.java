@@ -1,6 +1,6 @@
 package tellolib.control;
 
-import tellolib.camera.ArucoTracking;
+import tellolib.camera.ArucoMarkers;
 import tellolib.camera.MissionDetectionCamera;
 import tellolib.camera.TelloCamera;
 import tellolib.command.BasicTelloCommand;
@@ -12,15 +12,18 @@ import tellolib.communication.TelloCommunication;
 import tellolib.communication.TelloConnection;
 import tellolib.drone.TelloDrone;
 
+import java.util.ArrayList;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 
 /**
- * Implements TelloControl interface. Provides high level wrapper
- * for library classes used to communicate with and control the drone.
+ * TelloControl interface. Provides high level wrappers for
+ * library classes used to communicate with and control the drone.
  */
 public class TelloControl implements TelloControlInterface 
 {
@@ -646,10 +649,44 @@ public class TelloControl implements TelloControlInterface
 	@Override
 	public boolean detectArucoMarkers()
 	{
-		ArucoTracking at = ArucoTracking.getInstance();
+		ArucoMarkers at = ArucoMarkers.getInstance();
 
 		Mat image = telloCamera.getImage();
 		
 		return at.detectMarkers(image);
+	}
+
+	@Override
+	public int getArucoMarkerCount()
+	{
+		ArucoMarkers at = ArucoMarkers.getInstance();
+
+		return at.getMarkerCount();
+	}
+
+	@Override
+	public int getArucoMarkerId( int index )
+	{
+		ArucoMarkers at = ArucoMarkers.getInstance();
+
+		return at.getMarkerId(index);
+	}
+
+	@Override
+	public void addTarget( Rect target )
+	{
+		if (telloCamera != null) telloCamera.addTarget(target);
+	}
+
+	@Override
+	public void addTarget( Rect target, int width, Scalar color )
+	{
+		if  (telloCamera != null) telloCamera.addTarget(target, width, color);
+	}
+
+	@Override
+	public ArrayList<Rect> getArucoMarkerTargets()
+	{
+		return ArucoMarkers.getInstance().getMarkerTargets();
 	}
 }

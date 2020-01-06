@@ -1,12 +1,17 @@
 package tello;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.opencv.core.Rect;
 
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
+import tellolib.camera.ArucoMarkers;
 import tellolib.camera.MissionDetectionCamera;
+import tellolib.camera.TelloCamera;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.control.TelloControl;
@@ -104,14 +109,26 @@ public class ControllerTest
 		    	
 		    	if (currState.xJustPressed) 
 		    	{
-		    		boolean found = telloControl.detectArucoMarkers();
+	    			telloControl.addTarget(null);
+
+	    			boolean found = telloControl.detectArucoMarkers();
 		    		
 		    		logger.info("markers found=" + found);
 		    		
 		    		if (found)
 		    		{
-		    			int markers = 0;
+		    			int markerCount = telloControl.getArucoMarkerCount();
+		    			
+		    			logger.info("marker count=" + markerCount);
+		    			
+		    			ArrayList<Rect> targets = telloControl.getArucoMarkerTargets();
+		    			
+		    			telloControl.addTarget(targets.get(0));
 		    		}
+		    		
+		    		//Rect target = new Rect(100,100,200,200);
+
+		    		//telloControl.addTarget(target);
 		    	}
 
 		    	if (currState.yJustPressed) 

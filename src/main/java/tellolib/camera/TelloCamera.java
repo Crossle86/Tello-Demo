@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -15,6 +16,10 @@ import javax.swing.JLabel;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.videoio.*;
 import org.opencv.highgui.HighGui;
@@ -24,8 +29,8 @@ import org.opencv.imgproc.Imgproc;
 
 import tellolib.drone.TelloDrone;
 
-/*
- * Implementation of TelloCameraInterface.
+/**
+ * Convenience functions for Tello camera.
  */
 public class TelloCamera implements TelloCameraInterface
 {
@@ -42,6 +47,10 @@ public class TelloCamera implements TelloCameraInterface
 	private SimpleDateFormat	df = new SimpleDateFormat("yyyy-MM-dd.HHmmss");
 	private JFrame				jFrame;
 	private JLabel				jLabel;
+	
+	private ArrayList<Rect>			targetRectangles;
+	private Scalar 					targetColor = new Scalar(0, 0, 255);
+	private int						targetWidth = 1;
 	
 	// Private constructor, holder class and getInstance() implement this
 	// class as a singleton.
@@ -156,10 +165,22 @@ public class TelloCamera implements TelloCameraInterface
 	    	{
 	    		// Loop reading images from the video feed storing the current image
 	    		// in the image variable.
+	    		
 	    		while (!isInterrupted())
 	    		{
 	    		    synchronized (this) { camera.read(image); }
+	    			
+	    		    // Draw target rectangles on image.
 	    		    
+	    			if (targetRectangles != null)
+	    			{
+	    				for (Rect rect: targetRectangles) 
+	    					Imgproc.rectangle(image, 
+	    							new Point(rect.x, rect.y), 
+	    							new Point(rect.x + rect.width, rect.y +  rect.height), 
+	    							targetColor, targetWidth);
+	    			}
+
 	    		    // write image to live window if open.
 	    		    
 	    		    if (jFrame != null)	updateLiveWindow(image);
@@ -277,5 +298,31 @@ public class TelloCamera implements TelloCameraInterface
 	public boolean isRecording()
 	{
 		return recording;
+	}
+
+	@Override
+	public void addTarget( Rect target )
+	{
+		synchronized(this)
+		{
+			if (target == null)
+			{
+				targetRectangles = null;
+				return;
+			}
+		
+			if (targetRectangles == null) targetRectangles = new ArrayList<Rect>();
+		
+			targetRectangles.add(target);
+		}
+	}
+
+	@Override
+	public void addTarget( Rect target, int width, Scalar color )
+	{
+		targetWidth = width;
+		targetColor = color;
+		
+		addTarget(target);
 	}
 }

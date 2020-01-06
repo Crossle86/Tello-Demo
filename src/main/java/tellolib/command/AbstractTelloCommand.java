@@ -1,5 +1,9 @@
 package tellolib.command;
 
+/**
+ * Generic command to be sent to the drone. Can be used when you want to
+ * accept either a basic or complex command as both implement this class.
+ */
 public abstract class AbstractTelloCommand implements TelloCommandInterface 
 {
 

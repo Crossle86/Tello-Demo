@@ -3,7 +3,7 @@ package tellolib.drone;
 import tellolib.communication.TelloConnection;
 
 /**
- * Represents the Tello Drone.
+ * Holds information about the Tello Drone.
  */
 public interface TelloDroneInterface 
 {

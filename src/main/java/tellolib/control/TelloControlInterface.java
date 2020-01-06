@@ -1,8 +1,11 @@
 package tellolib.control;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 
 import tellolib.camera.MissionDetectionCamera;
 import tellolib.command.TelloFlip;
@@ -302,6 +305,21 @@ public interface TelloControlInterface
    * @return The current image.
    */
   Mat getImage();
+	
+  /**
+   * Add a target rectangle to be drawn on the camera feed images.
+   * Width of lines defaults to 1 pixel, color defaults to 0,0,255 (red).
+   * @param rectangle Rectangle to draw, null to clear all rectangles.
+   */
+  void addTarget(Rect target);
+	
+  /**
+   * Add a target rectangle to be drawn on the camera feed images.
+   * @param rectangle Rectangle to draw, null to clear all rectangles.
+   * @param width Pixel width of rectangle lines.
+   * @param color Set the line color used to draw rectangles. B,G,R color values. 
+   */
+  void addTarget(Rect target, int width, Scalar color);
 
   /**
    * Set mission mode state. In mission mode, status monitoring
@@ -406,4 +424,11 @@ public interface TelloControlInterface
 	 * @return Marker id number or -1 if no markers or index out of range.
 	 */
   	public int getArucoMarkerId(int index);
+	
+	/**
+	 * Get detected markers as rectangles located within the image used in
+	 * last call to detectMarkers() as x,y,h,w.
+	 * @return List of target rectangles or null if no markers found.
+	 */
+	public ArrayList<Rect> getArucoMarkerTargets();
 }

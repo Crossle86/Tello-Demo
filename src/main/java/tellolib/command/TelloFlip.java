@@ -1,5 +1,8 @@
 package tellolib.command;
 
+/**
+ * Enum describing the Tello flip commands.
+ */
 public enum TelloFlip 
 {
   left,

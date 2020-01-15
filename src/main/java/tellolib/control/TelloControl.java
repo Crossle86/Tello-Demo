@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 
@@ -688,5 +689,23 @@ public class TelloControl implements TelloControlInterface
 	public ArrayList<Rect> getArucoMarkerTargets()
 	{
 		return ArucoMarkers.getInstance().getMarkerTargets();
+	}
+	
+	@Override
+	public void setContours(ArrayList<MatOfPoint> contours)
+	{
+		telloCamera.setContours(contours);
+	}
+
+	@Override
+	public ArrayList<MatOfPoint> getArucoMarkerContours()
+	{
+		return ArucoMarkers.getInstance().getMarkerContours();
+	}
+
+	@Override
+	public void setContours( ArrayList<MatOfPoint> contours, int width, Scalar color )
+	{
+		telloCamera.setContours(contours, width, color);
 	}
 }

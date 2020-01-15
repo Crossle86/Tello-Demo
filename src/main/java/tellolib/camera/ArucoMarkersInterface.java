@@ -1,6 +1,7 @@
 package tellolib.camera;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 
 import java.util.ArrayList;
@@ -40,4 +41,12 @@ public interface ArucoMarkersInterface
 	 * @return List of target rectangles or null if no markers found.
 	 */
 	public ArrayList<Rect> getMarkerTargets();
+
+	/**
+	 * Get the contours of detected markers as an array points for each
+	 * marker from the last call to detectMarkers().
+	 * @return Array of vector of 4 corner points for each marker. Null if
+	 * no markers found.
+	 */
+	public ArrayList<MatOfPoint> getMarkerContours();
 }

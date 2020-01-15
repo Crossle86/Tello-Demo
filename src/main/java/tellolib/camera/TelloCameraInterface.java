@@ -3,6 +3,7 @@ package tellolib.camera;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 
@@ -70,4 +71,24 @@ public interface TelloCameraInterface
    * @param color Set the line color used to draw rectangles. B,G,R color values. 
    */
   void addTarget(Rect target, int width, Scalar color);
+  
+  /**
+   * Set an array of MatOfPoint vectors, one vector for each contour to be
+   * drawn on the camera feed images. Each vector can contains as many points
+   * as needed to draw the contour.
+   * @param contours Array of MatOfPoint objects, one for each contour, null to
+   * clear all contours.
+   */
+  public void setContours(ArrayList<MatOfPoint> contours);
+  
+  /**
+   * Set an array of MatOfPoint vectors, one vector for each contour to be
+   * drawn on the camera feed images. Each vector can contains as many points
+   * as needed to draw the contour.
+   * @param contours Array of MatOfPoint objects, one for each contour, null to
+   * clear all contours.
+   * @param width Pixel width of rectangle lines.
+   * @param color Set the line color used to draw rectangles. B,G,R color values. 
+   */
+  public void setContours(ArrayList<MatOfPoint> contours, int width, Scalar color);
 }

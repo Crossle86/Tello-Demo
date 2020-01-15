@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 
@@ -11,7 +12,6 @@ import tellolib.camera.MissionDetectionCamera;
 import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.drone.TelloDroneInterface;
-import tellolib.exception.TelloCommandException;
 
 /**
  * Higher level interface to Tello Drone library.
@@ -431,4 +431,32 @@ public interface TelloControlInterface
 	 * @return List of target rectangles or null if no markers found.
 	 */
 	public ArrayList<Rect> getArucoMarkerTargets();
+	
+	/**
+	 * Get the contours of detected markers as an array points for each
+	 * marker from the last call to detectMarkers().
+	 * @return Array of vector of 4 corner points for each marker. Null if
+	 * no markers found.
+	 */
+	public ArrayList<MatOfPoint> getArucoMarkerContours();
+	
+	/**
+	 * Set an array of MatOfPoint vectors, one vector for each contour to be
+	 * drawn on the camera feed images. Each vector can contains as many points
+	 * as needed to draw the contour.
+	 * @param contours Array of MatOfPoint objects, one for each contour, null to
+	 * clear all contours.
+	 */
+	public void setContours(ArrayList<MatOfPoint> contours);
+	
+	/**
+	 * Set an array of MatOfPoint vectors, one vector for each contour to be
+	 * drawn on the camera feed images. Each vector can contains as many points
+	 * as needed to draw the contour.
+	 * @param contours Array of MatOfPoint objects, one for each contour, null to
+	 * clear all contours.
+	 * @param width Pixel width of rectangle lines.
+	 * @param color Set the line color used to draw rectangles. B,G,R color values. 
+	 */
+	public void setContours(ArrayList<MatOfPoint> contours, int width, Scalar color);
 }

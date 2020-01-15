@@ -110,7 +110,8 @@ public class ControllerTest
 		    	if (currState.xJustPressed) 
 		    	{
 	    			telloControl.addTarget(null);
-
+	    			telloControl.setContours(null);
+	    			
 	    			boolean found = telloControl.detectArucoMarkers();
 		    		
 		    		logger.info("markers found=" + found);
@@ -124,6 +125,8 @@ public class ControllerTest
 		    			ArrayList<Rect> targets = telloControl.getArucoMarkerTargets();
 		    			
 		    			telloControl.addTarget(targets.get(0));
+		    			
+		    			telloControl.setContours(telloControl.getArucoMarkerContours());
 		    		}
 		    		
 		    		//Rect target = new Rect(100,100,200,200);

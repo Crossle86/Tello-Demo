@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -49,8 +50,9 @@ public class TelloCamera implements TelloCameraInterface
 	private JLabel				jLabel;
 	
 	private ArrayList<Rect>			targetRectangles;
-	private Scalar 					targetColor = new Scalar(0, 0, 255);
-	private int						targetWidth = 1;
+	private ArrayList<MatOfPoint>	contours = null;
+	private Scalar 					targetColor = new Scalar(0, 0, 255), contourColor = new Scalar(255, 0, 0);
+	private int						targetWidth = 1, contourWidth = 1;
 	
 	// Private constructor, holder class and getInstance() implement this
 	// class as a singleton.
@@ -179,6 +181,11 @@ public class TelloCamera implements TelloCameraInterface
 	    							new Point(rect.x, rect.y), 
 	    							new Point(rect.x + rect.width, rect.y +  rect.height), 
 	    							targetColor, targetWidth);
+	    			}
+	    			
+	    			if (contours != null)
+	    			{
+	    				Imgproc.drawContours(image, contours, -1, contourColor, contourWidth);
 	    			}
 
 	    		    // write image to live window if open.
@@ -324,5 +331,20 @@ public class TelloCamera implements TelloCameraInterface
 		targetColor = color;
 		
 		addTarget(target);
+	}
+	
+	@Override
+	public void setContours(ArrayList<MatOfPoint> contours)
+	{
+		this.contours = contours;
+	}
+
+	@Override
+	public void setContours( ArrayList<MatOfPoint> contours, int width, Scalar color )
+	{
+		contourWidth = width;
+		contourColor = color;
+		
+		setContours(contours);
 	}
 }

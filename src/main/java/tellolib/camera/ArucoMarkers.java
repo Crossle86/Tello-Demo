@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import org.opencv.aruco.*;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.*;
 
@@ -84,40 +86,89 @@ public class ArucoMarkers implements ArucoMarkersInterface
 	}
 
 	@Override
-	public ArrayList<Rect> getMarkerTargets()
+	public ArrayList<MatOfPoint> getMarkerContours()
 	{
-		ArrayList<Rect>	targetRectangles;
-		
 		if  (ids == null) return null;
 		
-		targetRectangles = new ArrayList<Rect>();
+		ArrayList<MatOfPoint> 	contours = new ArrayList<MatOfPoint>();
+		ArrayList<Rect>			markers = getMarkerTargets();
+		ArrayList<Point>		points;
 		
 		for (int i = 0; i < getMarkerCount(); i++)
 		{
 			Mat mat = corners.get(i);
 
-			//logger.fine("corner(" + i + ")=" + mat.dump());
-			//logger.fine("x1=" + mat.get(i, 0)[0] + "y1=" + mat.get(i, 0)[1]);
-			//logger.fine("x2=" + mat.get(i, 1)[0] + "y2=" + mat.get(i, 1)[1]);
+			//logger.fine("corners(" + i + ")=" + mat.dump());
 			
-			int x1 = (int) mat.get(i, 0)[0];
-			int y1 = (int) mat.get(i, 0)[1];
-			int x2 = (int) mat.get(i, 1)[0];
-			int y2 = (int) mat.get(i, 1)[1];
-			int x3 = (int) mat.get(i, 2)[0];
-			int y3 = (int) mat.get(i, 2)[1];
-			int x4 = (int) mat.get(i, 3)[0];
-			int y4 = (int) mat.get(i, 3)[1];
+			points = new ArrayList<Point>();
+			
+			for (int j = 0; j < 4; j++)
+			{
+				//logger.fine("x" + j + "=" + mat.get(0, j)[0] + " y" + j + "=" + mat.get(0, j)[1]);
+
+				int x = (int) mat.get(0, j)[0];
+				int y = (int) mat.get(0, j)[1];
+				
+				points.add(new Point(x, y));
+			}
+
+			MatOfPoint contour = new MatOfPoint();
+
+			//logger.fine("number of points=" + points.size());
+			
+			contour.fromList(points);
+			
+			contours.add(contour);
+		}
+		
+		//logger.fine("number of contours=" + contours.size());
+		
+		return contours;
+	}
+	
+	@Override
+	public ArrayList<Rect> getMarkerTargets()
+	{
+		ArrayList<Rect>	targetRectangles = new ArrayList<Rect>();
+		
+		if  (ids == null) return null;
+		
+		for (int i = 0; i < getMarkerCount(); i++)
+		{
+			Mat mat = corners.get(i);
+
+			//logger.fine("corners(" + i + ")=" + mat.dump());
+
+			// The marker corner mat (matrix) contains an array of the locations
+			// of the 4 corners of the detected marker starting with the upper
+			// left corner, upper right, lower right, lower left. For each corner
+			// the location is given as x,y. This quite different than the Rect
+			// class description of a rectangle: upper left corner as x,y and
+			// height and width. So we convert.
+			
+			//logger.fine("x0=" + mat.get(0, 0)[0] + " y0=" + mat.get(0, 0)[1]);
+			//logger.fine("x1=" + mat.get(0, 1)[0] + " y1=" + mat.get(0, 1)[1]);
+			//logger.fine("x2=" + mat.get(0, 2)[0] + " y2=" + mat.get(0, 2)[1]);
+			//logger.fine("x3=" + mat.get(0, 3)[0] + " y3=" + mat.get(0, 3)[1]);
+			
+			int x0 = (int) mat.get(0, 0)[0];
+			int y0 = (int) mat.get(0, 0)[1];
+			int x1 = (int) mat.get(0, 1)[0];
+			int y1 = (int) mat.get(0, 1)[1];
+			//int x2 = (int) mat.get(0, 2)[0];
+			//int y2 = (int) mat.get(0, 2)[1];
+			//int x3 = (int) mat.get(0, 3)[0];
+			int y3 = (int) mat.get(0, 3)[1];
 
 			Rect rect = new Rect();
-			rect.x = x1;
-			rect.y = y1;
-			rect.width = x2 - x1;
-			rect.height = y4 - y1;
+			rect.x = x0;
+			rect.y = y0;
+			rect.width = x1 - x0;
+			rect.height = y3 - y0;
 			
 			targetRectangles.add(rect);
 			
-			//logger.fine("rect=" + rect.toString());
+			logger.fine("rect=" + rect.toString());
 		}
 		
 		return targetRectangles;

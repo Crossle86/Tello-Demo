@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opencv.core.Rect;
+import org.opencv.core.Size;
 
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
@@ -31,8 +32,8 @@ public class ControllerTest
 
 	public void executeControllerTest()
 	{
-		int		leftX, leftY, rightX, rightY;
-		boolean	recording = false;
+		int		leftX, leftY, rightX, rightY, deadZone = 10;
+		boolean	recording = false, trackArucoMarker = false;
 		
 		logger.info("start");
 		
@@ -139,19 +140,60 @@ public class ControllerTest
 		    		telloControl.resetHeadingZero();
 		    		telloControl.resetYawZero();
 		    	}
+		    	
+		    	if (currState.rbJustPressed) trackArucoMarker = !trackArucoMarker;
+		    	
+		    	if (flying && trackArucoMarker)
+		    	{
+	    			telloControl.addTarget(null);
+	    			telloControl.setContours(null);
+	    			
+	    			boolean found = telloControl.detectArucoMarkers();
+		    		
+		    		//logger.info("markers found=" + found);
+		    		
+		    		if (found)
+		    		{
+		    			ArrayList<Rect> targets = telloControl.getArucoMarkerTargets();
+		    			
+		    			Rect target = targets.get(0);
+		    			
+		    			telloControl.addTarget(target);
+		    			
+		    			Size imageSize = TelloCamera.getInstance().getImageSize();
+		    			
+		    			int targetCenterX = target.x + target.width / 2;
+		    			int imageCenterX = (int) (imageSize.width / 2);
+		    			
+		    			int offset = targetCenterX - imageCenterX;
+
+		    			logger.info("offset=" + offset);
+		    			
+		    			if (Math.abs(offset) < 20) offset = 0;
+		    			
+		    			int rotate = 5; //(int) (offset * .5);
+		    			
+		    			if  (offset > 0)
+		    				telloControl.rotateRight(rotate);
+		    			else if (offset < 0)
+		    				telloControl.rotateLeft(rotate);
+		    		}
+		    	}
 	    		
 	    		//logger.info("heading=" + telloControl.getHeading() + ";yaw=" + telloControl.getYaw());
 		    	
-		    	if (flying)
+		    	if (flying && !trackArucoMarker)
 		    	{
 		    		// scale controller stick axis range -1.0 to + 1.0 to -100 to + 100
 		    		// used by the drone flyRC command. Apply a dead zone to allow
 		    		// for stick axis not always returning 0 when released.
-		    		leftX = deadZone((int) (currState.leftStickX * 100.0), 3);
-		    		leftY = deadZone((int) (currState.leftStickY * 100.0), 3);
-		    		rightX = deadZone((int) (currState.rightStickX * 100), 3);
-		    		rightY = deadZone((int) (currState.rightStickY * 100), 3);
+		    		leftX = deadZone((int) (currState.leftStickX * 100.0), deadZone);
+		    		leftY = deadZone((int) (currState.leftStickY * 100.0), deadZone);
+		    		rightX = deadZone((int) (currState.rightStickX * 100), deadZone);
+		    		rightY = deadZone((int) (currState.rightStickY * 100), deadZone);
 		    		
+		    		//logger.info("lr=" + rightX + " fb=" + rightY + " ud=" + leftY + " yaw=" + leftX);
+		    		//                  L/R      F/B    U/D    YAW
 	    			telloControl.flyRC(rightX, rightY, leftY, leftX);
 		    		
 		    		if (currState.dpadUpJustPressed) telloControl.doFlip(TelloFlip.forward);

@@ -347,4 +347,11 @@ public class TelloCamera implements TelloCameraInterface
 		
 		setContours(contours);
 	}
+	
+	public Size getImageSize()
+	{
+		if (image == null) return new Size(0,0);
+		
+		return new Size(image.width(), image.height());
+	}
 }

@@ -21,6 +21,13 @@ public interface ArucoMarkersInterface
 	public boolean detectMarkers(Mat frame);
 	
 	/**
+	 * Perform Aruco marker detection on the current frame held by camera, 
+	 * camera must be streaming.
+	 * @return True if marker(s) detected, false if not.
+	 */
+	public boolean detectMarkers();
+	
+	/**
 	 * Get the number of markers detected on last call to 
 	 * detectMarkers().
 	 * @return Number of detected markers.

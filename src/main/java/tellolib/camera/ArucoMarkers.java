@@ -25,11 +25,7 @@ public class ArucoMarkers implements ArucoMarkersInterface
 	
 	private ArucoMarkers()
 	{
-		//aruco = new Aruco();
-		
 		dict = Aruco.getPredefinedDictionary(Aruco.DICT_ARUCO_ORIGINAL);
-		
-		//parms = DetectorParameters.create();
 	}
     
 	private static class SingletonHolder 
@@ -46,6 +42,14 @@ public class ArucoMarkers implements ArucoMarkersInterface
 		return SingletonHolder.INSTANCE;
 	}
 
+	@Override
+	public boolean detectMarkers()
+	{
+		Mat image = TelloCamera.getInstance().getImage();
+		
+		return detectMarkers(image);	
+	}
+	
 	@Override
 	public boolean detectMarkers(Mat frame)
 	{

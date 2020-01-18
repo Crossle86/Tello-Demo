@@ -112,12 +112,12 @@ public class TelloCommunication implements TelloCommunicationInterface
       throw new TelloConnectionException(e);
     } 
 
-    logger.fine("response: " + response);
+    logger.finer("response: " + response);
 
     if (response.toLowerCase().startsWith("forced stop")) return;
     if (response.toLowerCase().startsWith("unknown command")) throw new TelloCommandException("unknown command");
     if (response.toLowerCase().startsWith("out of range")) throw new TelloCommandException("invalid parameter");
-    if (!response.toLowerCase().startsWith("ok")) throw new TelloCommandException("command failed");
+    if (!response.toLowerCase().startsWith("ok")) throw new TelloCommandException("command failed: " + response);
   }
 
   @Override
@@ -157,7 +157,7 @@ public class TelloCommunication implements TelloCommunicationInterface
 
     final String command = telloCommand.composeCommand();
     
-    logger.fine("executing command: " + command);
+    if (command != "battery?") logger.fine("executing command: " + command);
 
     try 
     {
@@ -167,13 +167,13 @@ public class TelloCommunication implements TelloCommunicationInterface
         throw new TelloConnectionException(e);
     }
 
-    logger.fine("response: " + response);
+    logger.finer("response: " + response);
 
     if (response.toLowerCase().startsWith("unknown command")) throw new TelloCommandException("unknown command");
     // Original Tello (not edu) has misspelled error return.
     if (response.toLowerCase().startsWith("unkown command")) throw new TelloCommandException("unknown command");
     if (response.toLowerCase().startsWith("out of range")) throw new TelloCommandException("invalid parameter");
-    if (response.toLowerCase().startsWith("error")) throw new TelloCommandException("command failed");
+    if (response.toLowerCase().startsWith("error")) throw new TelloCommandException("command failed: " + response);
     
     return response;
   }

@@ -91,4 +91,10 @@ public interface TelloCameraInterface
    * @param color Set the line color used to draw rectangles. B,G,R color values. 
    */
   public void setContours(ArrayList<MatOfPoint> contours, int width, Scalar color);
+  
+  /**
+   * Set a string of data to be displayed across the bottom of the video feed.
+   * @param message The data to be displayed or null to clear.
+   */
+  public void setStatusBar(String message);
 }

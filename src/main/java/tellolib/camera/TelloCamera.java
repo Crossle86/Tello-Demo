@@ -48,6 +48,7 @@ public class TelloCamera implements TelloCameraInterface
 	private SimpleDateFormat	df = new SimpleDateFormat("yyyy-MM-dd.HHmmss");
 	private JFrame				jFrame;
 	private JLabel				jLabel;
+	private String				statusBar = null;
 	
 	private ArrayList<Rect>			targetRectangles;
 	private ArrayList<MatOfPoint>	contours = null;
@@ -188,7 +189,13 @@ public class TelloCamera implements TelloCameraInterface
 	    				Imgproc.drawContours(image, contours, -1, contourColor, contourWidth);
 	    			}
 
-	    		    // write image to live window if open.
+	    			if (statusBar != null)
+	    			{
+	    				Imgproc.putText(image, statusBar, new Point(0, image.height() - 25), Imgproc.FONT_HERSHEY_PLAIN, 
+	    						1.5, new Scalar(255, 255, 255), 2, Imgproc.FILLED);
+	    			}
+
+	    			// write image to live window if open.
 	    		    
 	    		    if (jFrame != null)	updateLiveWindow(image);
 	    			
@@ -353,5 +360,11 @@ public class TelloCamera implements TelloCameraInterface
 		if (image == null) return new Size(0,0);
 		
 		return new Size(image.width(), image.height());
+	}
+
+	@Override
+	public void setStatusBar( String message )
+	{
+		statusBar = message;
 	}
 }

@@ -11,6 +11,7 @@ import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
 import tellolib.camera.ArucoMarkers;
+import tellolib.camera.FaceDetection;
 import tellolib.camera.MissionDetectionCamera;
 import tellolib.camera.TelloCamera;
 import tellolib.command.TelloFlip;
@@ -23,21 +24,24 @@ public class ControllerTest
 	private final Logger 		logger = Logger.getGlobal(); 
 	private ControllerManager	controllers;
 	private boolean				flying;
+	private int					initialTargetArea =  0;
+	
+    private TelloControlInterface telloControl;
 	
 	public ControllerTest()
 	{
 		controllers = new ControllerManager();
 		controllers.initSDLGamepad();
+		
+		telloControl = TelloControl.getInstance();
 	}
 
 	public void executeControllerTest()
 	{
 		int		leftX, leftY, rightX, rightY, deadZone = 10;
-		boolean	recording = false, trackArucoMarker = false;
+		boolean	recording = false, trackArucoMarker = false, trackFace = false;
 		
 		logger.info("start");
-		
-	    TelloControlInterface telloControl = TelloControl.getInstance();
 	    
 	    telloControl.setLogLevel(Level.FINE);
 
@@ -128,61 +132,99 @@ public class ControllerTest
 		    			telloControl.addTarget(targets.get(0));
 		    			
 		    			telloControl.setContours(telloControl.getArucoMarkerContours());
+		    			
+		    			logger.info(String.format("screen %dh x %dw  target %dh x %dw", 
+		    					telloControl.getImage().height(),
+		    					telloControl.getImage().width(),
+		    					targets.get(0).height, targets.get(0).width));
 		    		}
-		    		
-		    		//Rect target = new Rect(100,100,200,200);
-
-		    		//telloControl.addTarget(target);
 		    	}
 
+//		    	if (currState.lbJustPressed)
+//		    	{
+//	    			telloControl.addTarget(null);
+//
+//	    			boolean found = FaceDetection.getInstance().detectFaces();
+//	    			
+//	    			if (found)
+//	    			{
+//	    				int faceCount = FaceDetection.getInstance().getFaceCount();
+//
+//	    				logger.info("face count=" + faceCount);
+//	    				
+//	    				Rect[] faces = FaceDetection.getInstance().getFaces();
+//	    				
+//	    				telloControl.addTarget(faces[0]);
+//	    			}
+//		    	}
+		    	
 		    	if (currState.yJustPressed) 
 		    	{
 		    		telloControl.resetHeadingZero();
 		    		telloControl.resetYawZero();
 		    	}
 		    	
-		    	if (currState.rbJustPressed) trackArucoMarker = !trackArucoMarker;
+		    	if (currState.rbJustPressed) 
+		    	{
+		    		trackArucoMarker = !trackArucoMarker;
+		    		
+		    		if  (!trackArucoMarker)
+		    		{
+		    			initialTargetArea = 0;
+		    			telloControl.addTarget(null);
+		    		}
+		    	}
 		    	
 		    	if (flying && trackArucoMarker)
 		    	{
 	    			telloControl.addTarget(null);
-	    			telloControl.setContours(null);
 	    			
 	    			boolean found = telloControl.detectArucoMarkers();
 		    		
 		    		//logger.info("markers found=" + found);
 		    		
-		    		if (found)
+		    		if (found) 
 		    		{
 		    			ArrayList<Rect> targets = telloControl.getArucoMarkerTargets();
 		    			
 		    			Rect target = targets.get(0);
 		    			
-		    			telloControl.addTarget(target);
+		    			followTarget(target);
+		    		}
+		    	}
+		    	
+		    	if (currState.lbJustPressed) 
+		    	{
+		    		trackFace = !trackFace;
+		    		
+		    		if  (!trackArucoMarker)
+		    		{
+		    			initialTargetArea = 0;
+		    			telloControl.addTarget(null);
+		    		}
+		    	}
+		    	
+		    	if (flying && trackFace)
+		    	{
+	    			telloControl.addTarget(null);
+	    			
+	    			boolean found = FaceDetection.getInstance().detectFaces();
+		    		
+		    		logger.info("faces found=" + found);
+		    		
+		    		if (found) 
+		    		{
+	    				Rect[] faces = FaceDetection.getInstance().getFaces();
+	    				
+	    				telloControl.addTarget(faces[0]);
 		    			
-		    			Size imageSize = TelloCamera.getInstance().getImageSize();
-		    			
-		    			int targetCenterX = target.x + target.width / 2;
-		    			int imageCenterX = (int) (imageSize.width / 2);
-		    			
-		    			int offset = targetCenterX - imageCenterX;
-
-		    			logger.info("offset=" + offset);
-		    			
-		    			if (Math.abs(offset) < 20) offset = 0;
-		    			
-		    			int rotate = 5; //(int) (offset * .5);
-		    			
-		    			if  (offset > 0)
-		    				telloControl.rotateRight(rotate);
-		    			else if (offset < 0)
-		    				telloControl.rotateLeft(rotate);
+		    			followTarget(faces[0]);
 		    		}
 		    	}
 	    		
 	    		//logger.info("heading=" + telloControl.getHeading() + ";yaw=" + telloControl.getYaw());
 		    	
-		    	if (flying && !trackArucoMarker)
+		    	if (flying && !(trackArucoMarker || trackFace))
 		    	{
 		    		// scale controller stick axis range -1.0 to + 1.0 to -100 to + 100
 		    		// used by the drone flyRC command. Apply a dead zone to allow
@@ -203,6 +245,10 @@ public class ControllerTest
 		    		
 		    		if (currState.yJustPressed) telloControl.stop();
 		    	}
+		    	
+		    	TelloCamera.getInstance().setStatusBar(String.format("Batt: %d  Alt: %d  Hdg: %d  Mtrk: %b  Face: %b", 
+		    			telloControl.getDrone().getBattery(), telloControl.getDrone().getHeight(), 
+		    			telloControl.getDrone().getHeading(), trackArucoMarker, trackFace));
 		    	
 		    	Thread.sleep(100);
 		    }
@@ -236,5 +282,71 @@ public class ControllerTest
 		if (Math.abs(value) < minValue) value = 0;
 		
 		return value;
+	}
+	
+	private void followTarget(Rect target)
+	{
+		telloControl.addTarget(target);
+		
+		Size imageSize = TelloCamera.getInstance().getImageSize();
+		
+		int targetArea = target.height * target.width;
+		
+		if (initialTargetArea == 0) initialTargetArea = targetArea;
+		
+		int targetCenterX = target.x + target.width / 2;
+		int imageCenterX = (int) (imageSize.width / 2);
+		
+		// offset minus indicates target is left of image center,
+		// plus to the right. If target is left, drone needs to turn
+		// left to center the target in the image.
+		
+		int offset = targetCenterX - imageCenterX;
+
+		logger.info("offset=" + offset);
+		
+		// If offset is small, call it good otherwise the drone
+		// hunts back and forth. All of the constants determine
+		// experimentally.
+		
+		if (Math.abs(offset) < 20) offset = 0;
+		
+		// "speed" of rotation in degrees. Need to rotate faster
+		// if offset is larger to better track target movement.
+		// 5 degrees is minimum.
+		
+		int rotate = 5;
+		
+		if (offset / 50 != 0) rotate = rotate * Math.abs(offset) / 50;
+		
+		if  (offset > 0)
+			telloControl.rotateRight(rotate);
+		else if (offset < 0)
+			telloControl.rotateLeft(rotate);
+		
+		// Determine change in distance from first target acquisition.
+		
+		int distance = initialTargetArea - targetArea;
+		
+		logger.info(String.format("ia=%d  ta=%d  dist=%d", initialTargetArea, targetArea, distance));
+		
+		// If distance is small, call it good otherwise the drone
+		// hunts back and forth.
+	
+		if (Math.abs(distance) < 5000) distance = 0;
+	
+		// Centimeters to move to adjust distance to target. 20 cm
+		// is the default and minimum. Need to move more if target is far away
+		// less if up close. Not yet done.
+		
+		int forwardBack = 20;
+		
+		// Plus distance means the target has moved away, minus means
+		// moved closer.
+		
+		if (distance > 0)
+			telloControl.forward(forwardBack);
+		else if (distance < 0)
+			telloControl.backward(forwardBack);
 	}
 }

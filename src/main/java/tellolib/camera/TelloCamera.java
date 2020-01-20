@@ -118,7 +118,7 @@ public class TelloCamera implements TelloCameraInterface
 	@Override
 	public void stopVideoCapture()
 	{
-		if (camera != null) return;
+		if (camera == null) return;
 
 		if (recording) stopRecording();
 

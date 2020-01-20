@@ -45,6 +45,8 @@ public class TelloControl implements TelloControlInterface
 		drone = TelloDrone.getInstance();
 		  
 		communication = TelloCommunication.getInstance();
+		
+		camera = TelloCamera.getInstance();
 	}
     
 	private static class SingletonHolder 

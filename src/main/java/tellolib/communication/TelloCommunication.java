@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Implementation of TelloCommunication Interface.
+ * Low level support interface for sending and receiving data from DJI Tello drone.
  */
 public class TelloCommunication implements TelloCommunicationInterface
 {
@@ -68,7 +68,7 @@ public class TelloCommunication implements TelloCommunicationInterface
   }
 
   @Override
-  public void connect() 
+  public void connect() throws TelloConnectionException
   {
     try 
     {
@@ -92,7 +92,8 @@ public class TelloCommunication implements TelloCommunicationInterface
   }
 
   @Override
-  public synchronized void executeCommand(final TelloCommandInterface telloCommand)  
+  public synchronized void executeCommand(final TelloCommandInterface telloCommand) throws TelloConnectionException, 
+  											TelloCommandException
   {
 	String response;
 
@@ -121,7 +122,8 @@ public class TelloCommunication implements TelloCommunicationInterface
   }
 
   @Override
-  public synchronized void executeCommandNoWait(final TelloCommandInterface telloCommand)  
+  public synchronized void executeCommandNoWait(final TelloCommandInterface telloCommand) throws TelloConnectionException, 
+  												TelloCommandException  
   {
 	if (telloCommand == null) throw new TelloCommandException("Command was null");
      
@@ -147,7 +149,8 @@ public class TelloCommunication implements TelloCommunicationInterface
     return dataMap;
   }
 
-  public synchronized String executeReadCommand(TelloCommandInterface telloCommand) 
+  public synchronized String executeReadCommand(TelloCommandInterface telloCommand) throws TelloConnectionException, 
+	TelloCommandException 
   {
 	String response;
 	  

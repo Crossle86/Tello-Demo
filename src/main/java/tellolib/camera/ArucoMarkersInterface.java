@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import org.opencv.aruco.*;
 
 /**
- * Convenience functions for Opencv Aruco Markers feature.
+ * Convenience functions for OpenCV Aruco Markers feature.
  */
 public interface ArucoMarkersInterface
 {

@@ -18,6 +18,7 @@ import tellolib.command.TelloFlip;
 import tellolib.communication.TelloConnection;
 import tellolib.control.TelloControl;
 import tellolib.control.TelloControlInterface;
+import tellolib.drone.TelloDrone;
 
 public class ControllerTest
 {
@@ -26,7 +27,10 @@ public class ControllerTest
 	private boolean				flying;
 	private int					initialTargetArea =  0;
 	
-    private TelloControlInterface telloControl;
+    private TelloControlInterface 	telloControl;
+    private TelloCamera				camera;
+    private ArucoMarkers			markers;
+    private TelloDrone				drone;
 	
 	public ControllerTest()
 	{
@@ -34,6 +38,10 @@ public class ControllerTest
 		controllers.initSDLGamepad();
 		
 		telloControl = TelloControl.getInstance();
+		
+		camera = TelloCamera.getInstance();
+		
+		drone = TelloDrone.getInstance();
 	}
 
 	public void executeControllerTest()
@@ -57,7 +65,7 @@ public class ControllerTest
 		    
 		    telloControl.startKeepAlive();
 		    
-		    telloControl.startVideoCapture(true);
+		    camera.startVideoCapture(true);
 		    
 		    telloControl.setMissionMode(true, MissionDetectionCamera.downward);
 		    
@@ -104,38 +112,40 @@ public class ControllerTest
 		    	{
 		    		if (recording)
 		    		{
-		    			telloControl.stopRecording();
+		    			camera.stopRecording();
 		    			recording = false;
 		    		} else
-		    			recording = telloControl.startRecording(System.getProperty("user.dir") + "\\Photos");
+		    			recording = camera.startRecording(System.getProperty("user.dir") + "\\Photos");
 		    	}
 		    	
-		    	if  (currState.aJustPressed) telloControl.takePicture(System.getProperty("user.dir") + "\\Photos");
+		    	if  (currState.aJustPressed) camera.takePicture(System.getProperty("user.dir") + "\\Photos");
 		    	
 		    	if (currState.xJustPressed) 
 		    	{
-	    			telloControl.addTarget(null);
-	    			telloControl.setContours(null);
+		    		camera.addTarget(null);
+		    		camera.setContours(null);
+		    		
+		    		if (markers == null) markers = ArucoMarkers.getInstance();
 	    			
-	    			boolean found = telloControl.detectArucoMarkers();
+	    			boolean found = markers.detectMarkers();
 		    		
 		    		logger.info("markers found=" + found);
 		    		
 		    		if (found)
 		    		{
-		    			int markerCount = telloControl.getArucoMarkerCount();
+		    			int markerCount = markers.getMarkerCount();
 		    			
 		    			logger.info("marker count=" + markerCount);
 		    			
-		    			ArrayList<Rect> targets = telloControl.getArucoMarkerTargets();
+		    			ArrayList<Rect> targets = markers.getMarkerTargets();
 		    			
-		    			telloControl.addTarget(targets.get(0));
+		    			camera.addTarget(targets.get(0));
 		    			
-		    			telloControl.setContours(telloControl.getArucoMarkerContours());
+		    			camera.setContours(markers.getMarkerContours());
 		    			
 		    			logger.info(String.format("screen %dh x %dw  target %dh x %dw", 
-		    					telloControl.getImage().height(),
-		    					telloControl.getImage().width(),
+		    					camera.getImage().height(),
+		    					camera.getImage().width(),
 		    					targets.get(0).height, targets.get(0).width));
 		    		}
 		    	}
@@ -160,8 +170,8 @@ public class ControllerTest
 		    	
 		    	if (currState.yJustPressed) 
 		    	{
-		    		telloControl.resetHeadingZero();
-		    		telloControl.resetYawZero();
+		    		drone.resetHeadingZero();
+		    		drone.resetYawZero();
 		    	}
 		    	
 		    	if (currState.rbJustPressed) 
@@ -171,21 +181,21 @@ public class ControllerTest
 		    		if  (!trackArucoMarker)
 		    		{
 		    			initialTargetArea = 0;
-		    			telloControl.addTarget(null);
+		    			camera.addTarget(null);
 		    		}
 		    	}
 		    	
 		    	if (flying && trackArucoMarker)
 		    	{
-	    			telloControl.addTarget(null);
+	    			camera.addTarget(null);
 	    			
-	    			boolean found = telloControl.detectArucoMarkers();
+	    			boolean found = markers.detectMarkers();
 		    		
 		    		//logger.info("markers found=" + found);
 		    		
 		    		if (found) 
 		    		{
-		    			ArrayList<Rect> targets = telloControl.getArucoMarkerTargets();
+		    			ArrayList<Rect> targets = markers.getMarkerTargets();
 		    			
 		    			Rect target = targets.get(0);
 		    			
@@ -200,13 +210,13 @@ public class ControllerTest
 		    		if  (!trackArucoMarker)
 		    		{
 		    			initialTargetArea = 0;
-		    			telloControl.addTarget(null);
+		    			camera.addTarget(null);
 		    		}
 		    	}
 		    	
 		    	if (flying && trackFace)
 		    	{
-	    			telloControl.addTarget(null);
+	    			camera.addTarget(null);
 	    			
 	    			boolean found = FaceDetection.getInstance().detectFaces();
 		    		
@@ -216,7 +226,7 @@ public class ControllerTest
 		    		{
 	    				Rect[] faces = FaceDetection.getInstance().getFaces();
 	    				
-	    				telloControl.addTarget(faces[0]);
+	    				camera.addTarget(faces[0]);
 		    			
 		    			followTarget(faces[0]);
 		    		}
@@ -247,8 +257,7 @@ public class ControllerTest
 		    	}
 		    	
 		    	TelloCamera.getInstance().setStatusBar(String.format("Batt: %d  Alt: %d  Hdg: %d  Mtrk: %b  Face: %b", 
-		    			telloControl.getDrone().getBattery(), telloControl.getDrone().getHeight(), 
-		    			telloControl.getDrone().getHeading(), trackArucoMarker, trackFace));
+		    			drone.getBattery(), drone.getHeight(), drone.getHeading(), trackArucoMarker, trackFace));
 		    	
 		    	Thread.sleep(100);
 		    }
@@ -286,7 +295,7 @@ public class ControllerTest
 	
 	private void followTarget(Rect target)
 	{
-		telloControl.addTarget(target);
+		camera.addTarget(target);
 		
 		Size imageSize = TelloCamera.getInstance().getImageSize();
 		

@@ -85,6 +85,7 @@ public class TelloCamera implements TelloCameraInterface
 		if (camera != null) return;
 
 		// Create VideoCapture object to accept video feed from drone.
+		
 		camera = new VideoCapture();
 		
 	 	camera.setExceptionMode(true);
@@ -117,6 +118,8 @@ public class TelloCamera implements TelloCameraInterface
 	@Override
 	public void stopVideoCapture()
 	{
+		if (camera != null) return;
+
 		if (recording) stopRecording();
 
 		logger.fine("stopping video capture thread");
@@ -257,13 +260,10 @@ public class TelloCamera implements TelloCameraInterface
 		try
 		{
 	        // Convert image Mat to a jpeg.
-	        //MatOfByte imageBytes = new MatOfByte();
-	        //Imgcodecs.imencode(".jpg", getImage(), imageBytes);	        
 	        Image img = HighGui.toBufferedImage(image);
 	        
 	        // Set label component of the live window to new jpeg.
 	        jLabel.setIcon(new ImageIcon(img));
-	        //jLabel.setIcon(new ImageIcon(ImageIO.read(new ByteArrayInputStream(imageBytes.toArray()))));
 		}
 		catch (Exception e) {logger.warning("live window update failed: " + e.toString());}
 	}

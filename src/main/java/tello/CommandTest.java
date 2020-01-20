@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import tellolib.communication.TelloConnection;
 import tellolib.control.TelloControl;
 import tellolib.control.TelloControlInterface;
+import tellolib.drone.TelloDrone;
 
 public class CommandTest
 {
@@ -18,6 +19,8 @@ public class CommandTest
 		logger.info("start");
 		
 	    TelloControlInterface telloControl = TelloControl.getInstance();
+	    
+	    TelloDrone drone = TelloDrone.getInstance();
 	    
 	    telloControl.setLogLevel(Level.FINER);
 
@@ -53,29 +56,29 @@ public class CommandTest
 		    int[] attitude;
 		    double [] acceleration, velocity;
 		    
-			battery = telloControl.getDrone().getBattery();
+			battery = drone.getBattery();
 			
-			speed = telloControl.getSpeed();
+			speed = drone.getSpeed();
 			
-			time = telloControl.getDrone().getTime();
+			time = telloControl.getTime();
 			
-			baro = telloControl.getDrone().getBarometer();
+			baro = drone.getBarometer();
 			
-			height = telloControl.getDrone().getHeight();
+			height = drone.getHeight();
 			
-			tof = telloControl.getDrone().getTof();
+			tof = drone.getTof();
 			
-			temp = telloControl.getDrone().getTemp();
+			temp = drone.getTemp();
 			
 			sn = telloControl.getSN();
 			
 			sdk = telloControl.getSDK();
 			
-			attitude = telloControl.getDrone().getAttitude();
+			attitude = drone.getAttitude();
 			
-			acceleration = telloControl.getDrone().getAcceleration();
+			acceleration = drone.getAcceleration();
 			
-			velocity = telloControl.getDrone().getVelocity();
+			velocity = drone.getVelocity();
 			    
 		    logger.info("battery level=" + battery + ";speed=" + speed + ";time=" + time);
 		    logger.info("baro=" + baro + ";height=" + height + ";tof=" + tof + ";temp=" + temp);

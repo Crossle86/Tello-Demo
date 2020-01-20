@@ -9,25 +9,25 @@ public interface TelloDroneInterface
 {
 	/** 
 	 * Return last recorded battery level
-	 * @return Battery level 0-100%
+	 * @return Battery level 0-100%.
 	 */
 	Integer getBattery();
 
 	/**
 	 * Record battery level.
-	 * @param battery Battery level to record 0-100%
+	 * @param battery Battery level to record 0-100%.
 	 */
 	void setBattery(Integer battery);
 
 	/**
-	 * Return last set speed value 0-100 cm/s.
-	 * @return
+	 * Return last set speed value.
+	 * @return Speed 0-100 cm/s.
 	 */
 	Integer getSpeed();
 
 	/**
-	 * Record speed 10-100 cm/s.
-	 * @param speed
+	 * Set flight speed.
+	 * @param speed 10-100 cm/s.
 	 */
 	void setSpeed(Integer speed);
 
@@ -92,8 +92,8 @@ public interface TelloDroneInterface
 	double getBarometer();
 
 	/**
-	 * Record TOF value.
-	 * @param tof
+	 * Set TOF value.
+	 * @param tof Value to set.
 	 */
 	void setTof( double tof );
 

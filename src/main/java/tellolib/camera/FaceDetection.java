@@ -10,7 +10,9 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
 
-
+/**
+ * Face detection with OpenCV.
+ */
 public class FaceDetection implements FaceDetectionInterface
 {
 	private final Logger		logger = Logger.getLogger("Tello");
@@ -35,8 +37,8 @@ public class FaceDetection implements FaceDetectionInterface
     }
 	
 	/**
-	 * Get the global instance of ArucoTracking class.
-	 * @return Global ArucoTracking instance.
+	 * Get the global instance of FaceDetection class.
+	 * @return Global FaceDetection instance.
 	 */
 	public static FaceDetection getInstance()
 	{

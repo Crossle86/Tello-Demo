@@ -13,7 +13,7 @@ import org.opencv.core.Rect;
 import org.opencv.imgproc.*;
 
 /**
- * Convenience functions for Opencv Aruco Markers feature.
+ * Convenience functions for OpenCV Aruco Markers feature.
  */
 public class ArucoMarkers implements ArucoMarkersInterface
 {

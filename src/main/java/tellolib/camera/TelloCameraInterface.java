@@ -60,13 +60,13 @@ public interface TelloCameraInterface
   /**
    * Add a target rectangle to be drawn on the camera feed images.
    * Width of lines defaults to 1 pixel, color defaults to 0,0,255 (red).
-   * @param rectangle Rectangle to draw, null to clear all rectangles.
+   * @param target Rectangle to draw, null to clear all rectangles.
    */
   void addTarget(Rect target);
 	
   /**
    * Add a target rectangle to be drawn on the camera feed images.
-   * @param rectangle Rectangle to draw, null to clear all rectangles.
+   * @param target Rectangle to draw, null to clear all rectangles.
    * @param width Pixel width of rectangle lines.
    * @param color Set the line color used to draw rectangles. B,G,R color values. 
    */

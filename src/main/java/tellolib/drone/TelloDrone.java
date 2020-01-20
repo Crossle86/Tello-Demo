@@ -5,7 +5,7 @@ import org.opencv.core.Core;
 import tellolib.communication.TelloConnection;
 
 /**
- * TelloDrone class holds * information about the drone,
+ * TelloDrone class holds information about the drone,
  * set by retrieving information from the drone or other sources.
  */
 public class TelloDrone implements TelloDroneInterface

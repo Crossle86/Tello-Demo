@@ -25,7 +25,7 @@ venv.bak/
 
 *.iml
 
-Photos/
-Tello Manuals/
-doc/
+Photos/*.*
+#Tello Manuals/
+#doc/
 /target/

@@ -25,7 +25,8 @@ venv.bak/
 
 *.iml
 
-Photos/*.*
+Photos/*.avi
+Photos/*.jpg
 #Tello Manuals/
 #doc/
 /target/

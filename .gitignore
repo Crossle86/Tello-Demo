@@ -1,7 +1,4 @@
 
-# C extensions
-*.so
-
 # Distribution / packaging
 build/
 dist/
@@ -16,15 +13,10 @@ ENV/
 env.bak/
 venv.bak/
 
-# mkdocs documentation
-/site
-
-# idea 
-.idea/
+# Eclipse items
 .settings/
 
-*.iml
-
+# Project specific
 Photos/*.avi
 Photos/*.jpg
 #Tello Manuals/
